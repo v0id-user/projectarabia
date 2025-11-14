@@ -192,7 +192,6 @@ export default function PostForm({ onSubmit, post }: SubmitFormProps) {
                   field.handleChange(token);
                 }}
                 options={{
-                  size: "invisible",
                   refreshExpired: "manual",
                 }}
                 onExpire={() => ref.current?.reset()}

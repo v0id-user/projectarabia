@@ -408,7 +408,6 @@ export function UserDetail({
                     field.handleChange(token);
                   }}
                   options={{
-                    size: "invisible",
                     refreshExpired: "manual",
                   }}
                   onExpire={() => turnstileRef.current?.reset()}

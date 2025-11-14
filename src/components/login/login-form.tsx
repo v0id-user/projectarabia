@@ -163,7 +163,6 @@ export default function LoginForm({ onLogin, onRegister }: LoginFormProps) {
                       field.handleChange(token);
                     }}
                     options={{
-                      size: "invisible",
                       refreshExpired: "manual",
                     }}
                     onExpire={() => loginRef.current?.reset()}
@@ -314,7 +313,6 @@ export default function LoginForm({ onLogin, onRegister }: LoginFormProps) {
                       field.handleChange(token);
                     }}
                     options={{
-                      size: "invisible",
                       refreshExpired: "manual",
                     }}
                     onExpire={() => registerRef.current?.reset()}
