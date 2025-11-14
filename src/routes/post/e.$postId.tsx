@@ -101,7 +101,10 @@ function RouteComponent() {
 
       const createdAtDate = new Date(post.createdAt);
       const now = new Date();
-      if (differenceInMinutes(now, createdAtDate) > EDIT_COOLDOWN_MINUTES && !isModeratorEdit) {
+      if (
+        differenceInMinutes(now, createdAtDate) > EDIT_COOLDOWN_MINUTES &&
+        !isModeratorEdit
+      ) {
         setError(
           `انتهت مهلة تعديل المنشور (${EDIT_COOLDOWN_MINUTES} دقيقة فقط)`,
         );

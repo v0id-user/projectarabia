@@ -229,11 +229,14 @@ export default function PostDetail({ post, commentsLength }: PostDetailProps) {
               </span>
             )}
             {post.updatedAt &&
-              differenceInMinutes(new Date(post.updatedAt), new Date(post.createdAt)) >= 5 && (
+              differenceInMinutes(
+                new Date(post.updatedAt),
+                new Date(post.createdAt),
+              ) >= 5 && (
                 <em className="text-[10px] text-zinc-400">
                   (معدل {timeAgo(post.updatedAt)})
                 </em>
-            )}
+              )}
             {domain && (
               <a
                 href={post.url ?? "#"}
@@ -252,10 +255,10 @@ export default function PostDetail({ post, commentsLength }: PostDetailProps) {
               {voteCount === 1
                 ? "نقطة"
                 : voteCount === 2
-                ? "نقطتين"
-                : voteCount > 2 && voteCount <= 10
-                ? "نقاط"
-                : "نقطة"}
+                  ? "نقطتين"
+                  : voteCount > 2 && voteCount <= 10
+                    ? "نقاط"
+                    : "نقطة"}
             </span>
             <span className="text-zinc-400">•</span>
             <Link

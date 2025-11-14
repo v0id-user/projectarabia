@@ -156,10 +156,10 @@ export default function PostRow({ post, rank }: PostWithOrder) {
             {post.votes === 1
               ? "نقطة"
               : post.votes === 2
-              ? "نقطتين"
-              : post.votes > 2 && post.votes <= 10
-              ? "نقاط"
-              : "نقطة"}
+                ? "نقطتين"
+                : post.votes > 2 && post.votes <= 10
+                  ? "نقاط"
+                  : "نقطة"}
           </span>
           <span className="text-zinc-400">•</span>
           <Link

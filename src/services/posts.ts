@@ -334,7 +334,10 @@ export async function editPost(
 
   const createdAtDate = new Date(existingPost.createdAt);
   const now = new Date();
-  if (differenceInMinutes(now, createdAtDate) > EDIT_COOLDOWN_MINUTES && !isModerator) {
+  if (
+    differenceInMinutes(now, createdAtDate) > EDIT_COOLDOWN_MINUTES &&
+    !isModerator
+  ) {
     return {
       success: false,
       error: `انتهت مهلة تعديل المنشور (${EDIT_COOLDOWN_MINUTES} دقيقة فقط)`,

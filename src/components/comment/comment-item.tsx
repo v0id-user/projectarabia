@@ -346,8 +346,8 @@ export default function CommentItem({
                 {comment.votes === 1
                   ? "نقطة"
                   : comment.votes === 2
-                  ? "نقطتين"
-                  : "نقاط"}
+                    ? "نقطتين"
+                    : "نقاط"}
               </span>
             )}
           </div>
