@@ -1,5 +1,5 @@
 import { createFileRoute, useRouter } from "@tanstack/react-router";
-import LoginForm from "@/components/login/login-form";
+import LoginForm from "@/components/auth/login-form";
 import type { LoginSubmission, RegisterSubmission } from "@/schemas/auth/login";
 import { loginFn, registerFn } from "@/actions/auth-submit";
 import { useState } from "react";

@@ -438,13 +438,6 @@ export function UserDetail({
               >
                 التعليقات
               </Link>
-              <Link
-                to="/voted/$username"
-                params={{ username: _user.username }}
-                className="text-gray-600 underline hover:text-[#006CFF]"
-              >
-                المنشورات / التعليقات المصوت عليها
-              </Link>
             </div>
           )}
 

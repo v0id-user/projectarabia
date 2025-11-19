@@ -80,3 +80,26 @@ export async function updateUserProfile(
     throw error;
   }
 }
+
+export async function updateUserPassword(id: string, password: string) {
+  try {
+    logger.info("queries/users:updateUserPassword", { userId: id });
+    const result = await db
+      .update(users)
+      .set({
+        password,
+        updatedAt: new Date().toISOString(),
+      })
+      .where(eq(users.id, id))
+      .returning()
+      .get();
+    logger.info("queries/users:updateUserPassword:success", { userId: id });
+    return result;
+  } catch (error) {
+    logger.error("queries/users:updateUserPassword", {
+      userId: id,
+      error: error instanceof Error ? error.message : String(error),
+    });
+    throw error;
+  }
+}
