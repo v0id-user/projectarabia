@@ -13,6 +13,7 @@ import { Route as TipsRouteImport } from './routes/tips'
 import { Route as SecurityRouteImport } from './routes/security'
 import { Route as LegalRouteImport } from './routes/legal'
 import { Route as GuidesRouteImport } from './routes/guides'
+import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as FaqRouteImport } from './routes/faq'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as IndexRouteImport } from './routes/index'
@@ -51,6 +52,11 @@ const LegalRoute = LegalRouteImport.update({
 const GuidesRoute = GuidesRouteImport.update({
   id: '/guides',
   path: '/guides',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
+  id: '/forgot-password',
+  path: '/forgot-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FaqRoute = FaqRouteImport.update({
@@ -153,6 +159,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/contact': typeof ContactRoute
   '/faq': typeof FaqRoute
+  '/forgot-password': typeof ForgotPasswordRoute
   '/guides': typeof GuidesRoute
   '/legal': typeof LegalRoute
   '/security': typeof SecurityRoute
@@ -178,6 +185,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/contact': typeof ContactRoute
   '/faq': typeof FaqRoute
+  '/forgot-password': typeof ForgotPasswordRoute
   '/guides': typeof GuidesRoute
   '/legal': typeof LegalRoute
   '/security': typeof SecurityRoute
@@ -204,6 +212,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/contact': typeof ContactRoute
   '/faq': typeof FaqRoute
+  '/forgot-password': typeof ForgotPasswordRoute
   '/guides': typeof GuidesRoute
   '/legal': typeof LegalRoute
   '/security': typeof SecurityRoute
@@ -231,6 +240,7 @@ export interface FileRouteTypes {
     | '/'
     | '/contact'
     | '/faq'
+    | '/forgot-password'
     | '/guides'
     | '/legal'
     | '/security'
@@ -256,6 +266,7 @@ export interface FileRouteTypes {
     | '/'
     | '/contact'
     | '/faq'
+    | '/forgot-password'
     | '/guides'
     | '/legal'
     | '/security'
@@ -281,6 +292,7 @@ export interface FileRouteTypes {
     | '/'
     | '/contact'
     | '/faq'
+    | '/forgot-password'
     | '/guides'
     | '/legal'
     | '/security'
@@ -307,6 +319,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ContactRoute: typeof ContactRoute
   FaqRoute: typeof FaqRoute
+  ForgotPasswordRoute: typeof ForgotPasswordRoute
   GuidesRoute: typeof GuidesRoute
   LegalRoute: typeof LegalRoute
   SecurityRoute: typeof SecurityRoute
@@ -357,6 +370,13 @@ declare module '@tanstack/react-router' {
       path: '/guides'
       fullPath: '/guides'
       preLoaderRoute: typeof GuidesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/forgot-password': {
+      id: '/forgot-password'
+      path: '/forgot-password'
+      fullPath: '/forgot-password'
+      preLoaderRoute: typeof ForgotPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/faq': {
@@ -499,6 +519,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ContactRoute: ContactRoute,
   FaqRoute: FaqRoute,
+  ForgotPasswordRoute: ForgotPasswordRoute,
   GuidesRoute: GuidesRoute,
   LegalRoute: LegalRoute,
   SecurityRoute: SecurityRoute,
@@ -523,3 +544,12 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}

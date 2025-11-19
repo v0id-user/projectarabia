@@ -13,6 +13,7 @@ import {
   type ValidationResult,
 } from "@/services/validation";
 import { useSiteKey } from "@/hooks/useSiteKey";
+import { Link } from "@tanstack/react-router";
 // Adapter to convert ValidationResult to TanStack Form error format
 const toFormError = (result: ValidationResult): string | undefined => {
   return result.valid ? undefined : result.error;
@@ -140,6 +141,7 @@ export default function LoginForm({ onLogin, onRegister }: LoginFormProps) {
               )}
             />
           </div>
+          <Link to="/forgot-password">نسيت كلمة المرور؟</Link>
 
           {/* Turnstile Field */}
           <div className="mb-4">
