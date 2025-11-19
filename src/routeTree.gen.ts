@@ -24,11 +24,11 @@ import { Route as NewestIndexRouteImport } from './routes/newest/index'
 import { Route as LoginIndexRouteImport } from './routes/login/index'
 import { Route as CommentsIndexRouteImport } from './routes/comments/index'
 import { Route as AskIndexRouteImport } from './routes/ask/index'
-import { Route as VotedUsernameRouteImport } from './routes/voted/$username'
 import { Route as VerifyTokenRouteImport } from './routes/verify.$token'
 import { Route as UserUsernameRouteImport } from './routes/user/$username'
 import { Route as PostsUsernameRouteImport } from './routes/posts/$username'
 import { Route as PastMonthRouteImport } from './routes/past/$month'
+import { Route as PasswordCodeRouteImport } from './routes/password.$code'
 import { Route as CommentsUsernameRouteImport } from './routes/comments/$username'
 import { Route as PutAdminSecretRouteImport } from './routes/put.admin.secret'
 import { Route as PostIPostIdRouteImport } from './routes/post/i.$postId'
@@ -109,11 +109,6 @@ const AskIndexRoute = AskIndexRouteImport.update({
   path: '/ask/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const VotedUsernameRoute = VotedUsernameRouteImport.update({
-  id: '/voted/$username',
-  path: '/voted/$username',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const VerifyTokenRoute = VerifyTokenRouteImport.update({
   id: '/verify/$token',
   path: '/verify/$token',
@@ -132,6 +127,11 @@ const PostsUsernameRoute = PostsUsernameRouteImport.update({
 const PastMonthRoute = PastMonthRouteImport.update({
   id: '/past/$month',
   path: '/past/$month',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PasswordCodeRoute = PasswordCodeRouteImport.update({
+  id: '/password/$code',
+  path: '/password/$code',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CommentsUsernameRoute = CommentsUsernameRouteImport.update({
@@ -165,11 +165,11 @@ export interface FileRoutesByFullPath {
   '/security': typeof SecurityRoute
   '/tips': typeof TipsRoute
   '/comments/$username': typeof CommentsUsernameRoute
+  '/password/$code': typeof PasswordCodeRoute
   '/past/$month': typeof PastMonthRoute
   '/posts/$username': typeof PostsUsernameRoute
   '/user/$username': typeof UserUsernameRoute
   '/verify/$token': typeof VerifyTokenRoute
-  '/voted/$username': typeof VotedUsernameRoute
   '/ask': typeof AskIndexRoute
   '/comments': typeof CommentsIndexRoute
   '/login': typeof LoginIndexRoute
@@ -191,11 +191,11 @@ export interface FileRoutesByTo {
   '/security': typeof SecurityRoute
   '/tips': typeof TipsRoute
   '/comments/$username': typeof CommentsUsernameRoute
+  '/password/$code': typeof PasswordCodeRoute
   '/past/$month': typeof PastMonthRoute
   '/posts/$username': typeof PostsUsernameRoute
   '/user/$username': typeof UserUsernameRoute
   '/verify/$token': typeof VerifyTokenRoute
-  '/voted/$username': typeof VotedUsernameRoute
   '/ask': typeof AskIndexRoute
   '/comments': typeof CommentsIndexRoute
   '/login': typeof LoginIndexRoute
@@ -218,11 +218,11 @@ export interface FileRoutesById {
   '/security': typeof SecurityRoute
   '/tips': typeof TipsRoute
   '/comments/$username': typeof CommentsUsernameRoute
+  '/password/$code': typeof PasswordCodeRoute
   '/past/$month': typeof PastMonthRoute
   '/posts/$username': typeof PostsUsernameRoute
   '/user/$username': typeof UserUsernameRoute
   '/verify/$token': typeof VerifyTokenRoute
-  '/voted/$username': typeof VotedUsernameRoute
   '/ask/': typeof AskIndexRoute
   '/comments/': typeof CommentsIndexRoute
   '/login/': typeof LoginIndexRoute
@@ -246,11 +246,11 @@ export interface FileRouteTypes {
     | '/security'
     | '/tips'
     | '/comments/$username'
+    | '/password/$code'
     | '/past/$month'
     | '/posts/$username'
     | '/user/$username'
     | '/verify/$token'
-    | '/voted/$username'
     | '/ask'
     | '/comments'
     | '/login'
@@ -272,11 +272,11 @@ export interface FileRouteTypes {
     | '/security'
     | '/tips'
     | '/comments/$username'
+    | '/password/$code'
     | '/past/$month'
     | '/posts/$username'
     | '/user/$username'
     | '/verify/$token'
-    | '/voted/$username'
     | '/ask'
     | '/comments'
     | '/login'
@@ -298,11 +298,11 @@ export interface FileRouteTypes {
     | '/security'
     | '/tips'
     | '/comments/$username'
+    | '/password/$code'
     | '/past/$month'
     | '/posts/$username'
     | '/user/$username'
     | '/verify/$token'
-    | '/voted/$username'
     | '/ask/'
     | '/comments/'
     | '/login/'
@@ -325,11 +325,11 @@ export interface RootRouteChildren {
   SecurityRoute: typeof SecurityRoute
   TipsRoute: typeof TipsRoute
   CommentsUsernameRoute: typeof CommentsUsernameRoute
+  PasswordCodeRoute: typeof PasswordCodeRoute
   PastMonthRoute: typeof PastMonthRoute
   PostsUsernameRoute: typeof PostsUsernameRoute
   UserUsernameRoute: typeof UserUsernameRoute
   VerifyTokenRoute: typeof VerifyTokenRoute
-  VotedUsernameRoute: typeof VotedUsernameRoute
   AskIndexRoute: typeof AskIndexRoute
   CommentsIndexRoute: typeof CommentsIndexRoute
   LoginIndexRoute: typeof LoginIndexRoute
@@ -449,13 +449,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AskIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/voted/$username': {
-      id: '/voted/$username'
-      path: '/voted/$username'
-      fullPath: '/voted/$username'
-      preLoaderRoute: typeof VotedUsernameRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/verify/$token': {
       id: '/verify/$token'
       path: '/verify/$token'
@@ -482,6 +475,13 @@ declare module '@tanstack/react-router' {
       path: '/past/$month'
       fullPath: '/past/$month'
       preLoaderRoute: typeof PastMonthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/password/$code': {
+      id: '/password/$code'
+      path: '/password/$code'
+      fullPath: '/password/$code'
+      preLoaderRoute: typeof PasswordCodeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/comments/$username': {
@@ -525,11 +525,11 @@ const rootRouteChildren: RootRouteChildren = {
   SecurityRoute: SecurityRoute,
   TipsRoute: TipsRoute,
   CommentsUsernameRoute: CommentsUsernameRoute,
+  PasswordCodeRoute: PasswordCodeRoute,
   PastMonthRoute: PastMonthRoute,
   PostsUsernameRoute: PostsUsernameRoute,
   UserUsernameRoute: UserUsernameRoute,
   VerifyTokenRoute: VerifyTokenRoute,
-  VotedUsernameRoute: VotedUsernameRoute,
   AskIndexRoute: AskIndexRoute,
   CommentsIndexRoute: CommentsIndexRoute,
   LoginIndexRoute: LoginIndexRoute,

@@ -1,8 +1,11 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, redirect, Link, useRouter } from "@tanstack/react-router";
 import { useForm } from "@tanstack/react-form";
-import { forgotPasswordFormOpts } from "@/schemas/auth/forgot-password";
-import { forgotPasswordFn } from "@/actions/forgot-password-submit";
-import { validateEmail, type ValidationResult } from "@/services/validation";
+import { changePasswordFormOpts } from "@/schemas/auth/forgot-password";
+import {
+  changePasswordFn,
+  validateResetCodeFn,
+} from "@/actions/forgot-password-submit";
+import { validatePassword, type ValidationResult } from "@/services/validation";
 import { useState } from "react";
 
 // Adapter to convert ValidationResult to TanStack Form error format
@@ -10,24 +13,48 @@ const toFormError = (result: ValidationResult): string | undefined => {
   return result.valid ? undefined : result.error;
 };
 
-export const Route = createFileRoute("/forgot-password")({
+export const Route = createFileRoute("/password/$code")({
+  beforeLoad: async ({ params }) => {
+    const result = await validateResetCodeFn({ data: { code: params.code } });
+
+    if (!result.success) {
+      throw redirect({
+        to: "/forgot-password",
+        search: {
+          error: result.error || "رمز التحقق غير صالح أو منتهي الصلاحية",
+        },
+      });
+    }
+
+    return { code: params.code };
+  },
   component: RouteComponent,
 });
 
 function RouteComponent() {
+  const { code } = Route.useRouteContext();
+  const router = useRouter();
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const form = useForm({
-    ...forgotPasswordFormOpts,
+    ...changePasswordFormOpts,
+    defaultValues: {
+      code,
+      password: "",
+    },
     onSubmit: async ({ value }) => {
       setError(null);
-      const result = await forgotPasswordFn({ data: value });
+      const result = await changePasswordFn({ data: value });
 
       if (result.error) {
         setError(result.error);
       } else {
         setSuccess(true);
+        // Redirect to login after a short delay
+        setTimeout(() => {
+          router.navigate({ to: "/login" });
+        }, 2000);
       }
     },
   });
@@ -36,15 +63,15 @@ function RouteComponent() {
     return (
       <div className="max-w-2xl p-4">
         <div className="mb-4">
-          <h2 className="text-lg mb-4">تم إرسال رابط إعادة تعيين كلمة المرور</h2>
+          <h2 className="text-lg mb-4">تم تغيير كلمة المرور بنجاح</h2>
           <p className="text-sm mb-4">
-            إذا كان البريد الإلكتروني موجودًا في نظامنا، فسيتم إرسال رابط إعادة تعيين كلمة المرور إليه.
+            تم تغيير كلمة المرور بنجاح. سيتم توجيهك إلى صفحة تسجيل الدخول...
           </p>
           <Link
             to="/login"
             className="text-sm underline text-blue-600 hover:text-blue-800"
           >
-            العودة إلى تسجيل الدخول
+            الانتقال إلى تسجيل الدخول
           </Link>
         </div>
       </div>
@@ -54,9 +81,9 @@ function RouteComponent() {
   return (
     <div className="max-w-2xl p-4">
       <div className="mb-8">
-        <h2 className="text-lg mb-4">نسيت كلمة المرور</h2>
+        <h2 className="text-lg mb-4">إعادة تعيين كلمة المرور</h2>
         <p className="text-sm mb-4">
-          أدخل بريدك الإلكتروني وسنرسل لك رابطًا لإعادة تعيين كلمة المرور.
+          أدخل كلمة مرور جديدة لحسابك.
         </p>
         <form
           onSubmit={(e) => {
@@ -65,31 +92,31 @@ function RouteComponent() {
             form.handleSubmit();
           }}
         >
-          {/* Email Field */}
+          {/* Password Field */}
           <div className="mb-3">
             <form.Field
-              name="email"
+              name="password"
               validators={{
                 onChange: ({ value }) => {
                   if (!value || value.trim() === "") {
-                    return "البريد الإلكتروني مطلوب";
+                    return "كلمة المرور مطلوبة";
                   }
-                  return toFormError(validateEmail(value));
+                  return toFormError(validatePassword(value));
                 },
               }}
               // biome-ignore lint/correctness/noChildrenProp: Tanstack Form children prop must be a function and used as a prop
               children={(field) => (
                 <>
                   <label
-                    htmlFor={`forgot-password-${field.name}`}
+                    htmlFor={`change-password-${field.name}`}
                     className="block text-sm mb-1"
                   >
-                    البريد الإلكتروني:
+                    كلمة المرور الجديدة:
                   </label>
                   <input
-                    id={`forgot-password-${field.name}`}
+                    id={`change-password-${field.name}`}
                     name={field.name}
-                    type="email"
+                    type="password"
                     value={field.state.value}
                     onBlur={field.handleBlur}
                     onChange={(e) => field.handleChange(e.target.value)}
@@ -100,6 +127,9 @@ function RouteComponent() {
                       {field.state.meta.errors.join(", ")}
                     </em>
                   )}
+                  <small className="block text-xs text-gray-500 mt-1">
+                    8 أحرف على الأقل، حرف كبير وصغير ورقم
+                  </small>
                 </>
               )}
             />
@@ -121,7 +151,7 @@ function RouteComponent() {
                 disabled={!canSubmit || isSubmitting}
                 className="px-3 py-1 text-sm border border-gray-400 enabled:hover:bg-gray-100 disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed transition-colors"
               >
-                {isSubmitting ? "جاري الإرسال..." : "إرسال رابط إعادة التعيين"}
+                {isSubmitting ? "جاري التغيير..." : "تغيير كلمة المرور"}
               </button>
             )}
           />
