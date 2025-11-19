@@ -81,10 +81,7 @@ export async function updateUserProfile(
   }
 }
 
-export async function updateUserPassword(
-  id: string,
-  password: string,
-) {
+export async function updateUserPassword(id: string, password: string) {
   try {
     logger.info("queries/users:updateUserPassword", { userId: id });
     const result = await db

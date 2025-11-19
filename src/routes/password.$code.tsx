@@ -1,4 +1,9 @@
-import { createFileRoute, redirect, Link, useRouter } from "@tanstack/react-router";
+import {
+  createFileRoute,
+  redirect,
+  Link,
+  useRouter,
+} from "@tanstack/react-router";
 import { useForm } from "@tanstack/react-form";
 import { changePasswordFormOpts } from "@/schemas/auth/forgot-password";
 import {
@@ -82,9 +87,7 @@ function RouteComponent() {
     <div className="max-w-2xl p-4">
       <div className="mb-8">
         <h2 className="text-lg mb-4">إعادة تعيين كلمة المرور</h2>
-        <p className="text-sm mb-4">
-          أدخل كلمة مرور جديدة لحسابك.
-        </p>
+        <p className="text-sm mb-4">أدخل كلمة مرور جديدة لحسابك.</p>
         <form
           onSubmit={(e) => {
             e.preventDefault();

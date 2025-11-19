@@ -23,8 +23,7 @@ async function hashPassword(password: string): Promise<string> {
 export async function requestPasswordReset(
   email: string,
 ): Promise<
-  | { success: true }
-  | { success: false; error: string; errorCode: string }
+  { success: true } | { success: false; error: string; errorCode: string }
 > {
   // Validate email format
   const emailValidation = validateEmail(email);
@@ -101,8 +100,7 @@ export async function changePasswordWithCode(
   code: string,
   newPassword: string,
 ): Promise<
-  | { success: true }
-  | { success: false; error: string; errorCode: string }
+  { success: true } | { success: false; error: string; errorCode: string }
 > {
   // Validate password strength
   const passwordValidation = validatePassword(newPassword);
@@ -148,4 +146,3 @@ export async function changePasswordWithCode(
 
   return { success: true };
 }
-
