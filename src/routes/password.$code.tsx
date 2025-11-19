@@ -1,7 +1,4 @@
-import {
-  createFileRoute,
-  redirect,
-} from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 import { validateResetCodeFn } from "@/actions/forgot-password-submit";
 import { ChangePasswordForm } from "@/components/auth/forgot-password-form";
 
