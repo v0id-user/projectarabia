@@ -34,6 +34,7 @@
     "production": {
       "vars": {
         "DOMAIN": "b11z.news",
+        "VITE_DOMAIN": "https://b11z.news",
         "CLOUDFLARE_DATABASE_ID": "b069ff1d-7a47-462e-b1e6-0164062d0748",
         "CLOUDFLARE_ENV": "production",
         "VITE_SITE_KEY": "0x4AAAAAAB9fcOZ50et9DCar"
@@ -70,6 +71,7 @@
     "development": {
       "vars": {
         "DOMAIN": "localhost:3000",
+        "VITE_DOMAIN": "http://localhost:3000",
         "CLOUDFLARE_DATABASE_ID": "b069ff1d-7a47-462e-b1e6-0164062d0748",
         "CLOUDFLARE_ENV": "development",
         "VITE_SITE_KEY": "0x4AAAAAAB9fcOZ50et9DCar"
