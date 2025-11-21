@@ -51,49 +51,48 @@ export default function BoardHeader() {
   const ActiveLinks = () => {
     if (!shouldShowActiveLinks) return null;
 
+    const BoardLink = ({
+      to,
+      children,
+    }: {
+      to: string;
+      children: React.ReactNode;
+    }) => {
+      return (
+        <Link
+          to={to}
+          className="px-2 py-1 rounded transition-colors hover:text-white"
+        >
+          {children}
+        </Link>
+      );
+    };
+
     return (
       <>
-        <Link
-          to="/newest"
-          className="px-2 py-1 rounded transition-colors hover:text-white"
-        >
+        <BoardLink to="/newest">
           <span>الأحدث</span>
-        </Link>
+        </BoardLink>
         <span className="px-2">|</span>
-        <Link
-          to="/comments"
-          className="px-2 py-1 rounded transition-colors hover:text-white"
-        >
+        <BoardLink to="/comments">
           <span>تعليقات</span>
-        </Link>
+        </BoardLink>
         <span className="px-2">|</span>
-        <Link
-          to="/ask"
-          className="px-2 py-1 rounded transition-colors hover:text-white"
-        >
+        <BoardLink to="/ask">
           <span>الأسئلة</span>
-        </Link>
+        </BoardLink>
         <span className="px-2">|</span>
-        <Link
-          to="/share"
-          className="px-2 py-1 rounded transition-colors hover:text-white"
-        >
+        <BoardLink to="/share">
           <span>المشاركات</span>
-        </Link>
+        </BoardLink>
         <span className="px-2">|</span>
-        <Link
-          to="/past"
-          className="px-2 py-1 rounded transition-colors hover:text-white"
-        >
+        <BoardLink to="/past">
           <span>الأرشيف</span>
-        </Link>
+        </BoardLink>
         <span className="px-2">|</span>
-        <Link
-          to="/post"
-          className="px-2 py-1 rounded transition-colors hover:text-white"
-        >
+        <BoardLink to="/post">
           <span>نشر</span>
-        </Link>
+        </BoardLink>
       </>
     );
   };
