@@ -24,12 +24,15 @@ import { Route as NewestIndexRouteImport } from './routes/newest/index'
 import { Route as LoginIndexRouteImport } from './routes/login/index'
 import { Route as CommentsIndexRouteImport } from './routes/comments/index'
 import { Route as AskIndexRouteImport } from './routes/ask/index'
+import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as VerifyTokenRouteImport } from './routes/verify.$token'
 import { Route as UserUsernameRouteImport } from './routes/user/$username'
 import { Route as PostsUsernameRouteImport } from './routes/posts/$username'
 import { Route as PastMonthRouteImport } from './routes/past/$month'
 import { Route as PasswordCodeRouteImport } from './routes/password.$code'
 import { Route as CommentsUsernameRouteImport } from './routes/comments/$username'
+import { Route as AdminUsersRouteImport } from './routes/admin/users'
+import { Route as AdminModerationRouteImport } from './routes/admin/moderation'
 import { Route as PutAdminSecretRouteImport } from './routes/put.admin.secret'
 import { Route as PostIPostIdRouteImport } from './routes/post/i.$postId'
 import { Route as PostEPostIdRouteImport } from './routes/post/e.$postId'
@@ -109,6 +112,11 @@ const AskIndexRoute = AskIndexRouteImport.update({
   path: '/ask/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminIndexRoute = AdminIndexRouteImport.update({
+  id: '/admin/',
+  path: '/admin/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const VerifyTokenRoute = VerifyTokenRouteImport.update({
   id: '/verify/$token',
   path: '/verify/$token',
@@ -139,6 +147,16 @@ const CommentsUsernameRoute = CommentsUsernameRouteImport.update({
   path: '/comments/$username',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminUsersRoute = AdminUsersRouteImport.update({
+  id: '/admin/users',
+  path: '/admin/users',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminModerationRoute = AdminModerationRouteImport.update({
+  id: '/admin/moderation',
+  path: '/admin/moderation',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PutAdminSecretRoute = PutAdminSecretRouteImport.update({
   id: '/put/admin/secret',
   path: '/put/admin/secret',
@@ -164,12 +182,15 @@ export interface FileRoutesByFullPath {
   '/legal': typeof LegalRoute
   '/security': typeof SecurityRoute
   '/tips': typeof TipsRoute
+  '/admin/moderation': typeof AdminModerationRoute
+  '/admin/users': typeof AdminUsersRoute
   '/comments/$username': typeof CommentsUsernameRoute
   '/password/$code': typeof PasswordCodeRoute
   '/past/$month': typeof PastMonthRoute
   '/posts/$username': typeof PostsUsernameRoute
   '/user/$username': typeof UserUsernameRoute
   '/verify/$token': typeof VerifyTokenRoute
+  '/admin': typeof AdminIndexRoute
   '/ask': typeof AskIndexRoute
   '/comments': typeof CommentsIndexRoute
   '/login': typeof LoginIndexRoute
@@ -190,12 +211,15 @@ export interface FileRoutesByTo {
   '/legal': typeof LegalRoute
   '/security': typeof SecurityRoute
   '/tips': typeof TipsRoute
+  '/admin/moderation': typeof AdminModerationRoute
+  '/admin/users': typeof AdminUsersRoute
   '/comments/$username': typeof CommentsUsernameRoute
   '/password/$code': typeof PasswordCodeRoute
   '/past/$month': typeof PastMonthRoute
   '/posts/$username': typeof PostsUsernameRoute
   '/user/$username': typeof UserUsernameRoute
   '/verify/$token': typeof VerifyTokenRoute
+  '/admin': typeof AdminIndexRoute
   '/ask': typeof AskIndexRoute
   '/comments': typeof CommentsIndexRoute
   '/login': typeof LoginIndexRoute
@@ -217,12 +241,15 @@ export interface FileRoutesById {
   '/legal': typeof LegalRoute
   '/security': typeof SecurityRoute
   '/tips': typeof TipsRoute
+  '/admin/moderation': typeof AdminModerationRoute
+  '/admin/users': typeof AdminUsersRoute
   '/comments/$username': typeof CommentsUsernameRoute
   '/password/$code': typeof PasswordCodeRoute
   '/past/$month': typeof PastMonthRoute
   '/posts/$username': typeof PostsUsernameRoute
   '/user/$username': typeof UserUsernameRoute
   '/verify/$token': typeof VerifyTokenRoute
+  '/admin/': typeof AdminIndexRoute
   '/ask/': typeof AskIndexRoute
   '/comments/': typeof CommentsIndexRoute
   '/login/': typeof LoginIndexRoute
@@ -245,12 +272,15 @@ export interface FileRouteTypes {
     | '/legal'
     | '/security'
     | '/tips'
+    | '/admin/moderation'
+    | '/admin/users'
     | '/comments/$username'
     | '/password/$code'
     | '/past/$month'
     | '/posts/$username'
     | '/user/$username'
     | '/verify/$token'
+    | '/admin'
     | '/ask'
     | '/comments'
     | '/login'
@@ -271,12 +301,15 @@ export interface FileRouteTypes {
     | '/legal'
     | '/security'
     | '/tips'
+    | '/admin/moderation'
+    | '/admin/users'
     | '/comments/$username'
     | '/password/$code'
     | '/past/$month'
     | '/posts/$username'
     | '/user/$username'
     | '/verify/$token'
+    | '/admin'
     | '/ask'
     | '/comments'
     | '/login'
@@ -297,12 +330,15 @@ export interface FileRouteTypes {
     | '/legal'
     | '/security'
     | '/tips'
+    | '/admin/moderation'
+    | '/admin/users'
     | '/comments/$username'
     | '/password/$code'
     | '/past/$month'
     | '/posts/$username'
     | '/user/$username'
     | '/verify/$token'
+    | '/admin/'
     | '/ask/'
     | '/comments/'
     | '/login/'
@@ -324,12 +360,15 @@ export interface RootRouteChildren {
   LegalRoute: typeof LegalRoute
   SecurityRoute: typeof SecurityRoute
   TipsRoute: typeof TipsRoute
+  AdminModerationRoute: typeof AdminModerationRoute
+  AdminUsersRoute: typeof AdminUsersRoute
   CommentsUsernameRoute: typeof CommentsUsernameRoute
   PasswordCodeRoute: typeof PasswordCodeRoute
   PastMonthRoute: typeof PastMonthRoute
   PostsUsernameRoute: typeof PostsUsernameRoute
   UserUsernameRoute: typeof UserUsernameRoute
   VerifyTokenRoute: typeof VerifyTokenRoute
+  AdminIndexRoute: typeof AdminIndexRoute
   AskIndexRoute: typeof AskIndexRoute
   CommentsIndexRoute: typeof CommentsIndexRoute
   LoginIndexRoute: typeof LoginIndexRoute
@@ -449,6 +488,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AskIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/': {
+      id: '/admin/'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/verify/$token': {
       id: '/verify/$token'
       path: '/verify/$token'
@@ -491,6 +537,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CommentsUsernameRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/users': {
+      id: '/admin/users'
+      path: '/admin/users'
+      fullPath: '/admin/users'
+      preLoaderRoute: typeof AdminUsersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/moderation': {
+      id: '/admin/moderation'
+      path: '/admin/moderation'
+      fullPath: '/admin/moderation'
+      preLoaderRoute: typeof AdminModerationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/put/admin/secret': {
       id: '/put/admin/secret'
       path: '/put/admin/secret'
@@ -524,12 +584,15 @@ const rootRouteChildren: RootRouteChildren = {
   LegalRoute: LegalRoute,
   SecurityRoute: SecurityRoute,
   TipsRoute: TipsRoute,
+  AdminModerationRoute: AdminModerationRoute,
+  AdminUsersRoute: AdminUsersRoute,
   CommentsUsernameRoute: CommentsUsernameRoute,
   PasswordCodeRoute: PasswordCodeRoute,
   PastMonthRoute: PastMonthRoute,
   PostsUsernameRoute: PostsUsernameRoute,
   UserUsernameRoute: UserUsernameRoute,
   VerifyTokenRoute: VerifyTokenRoute,
+  AdminIndexRoute: AdminIndexRoute,
   AskIndexRoute: AskIndexRoute,
   CommentsIndexRoute: CommentsIndexRoute,
   LoginIndexRoute: LoginIndexRoute,
@@ -544,3 +607,12 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}

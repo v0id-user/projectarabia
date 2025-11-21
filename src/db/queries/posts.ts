@@ -219,6 +219,26 @@ export async function decrementReportCountPost(postId: string) {
     .where(eq(posts.id, postId));
 }
 
+export async function unhidePost(postId: string) {
+  try {
+    logger.info("queries/posts:unhidePost", { postId });
+    const result = await db
+      .update(posts)
+      .set({ hidden: false })
+      .where(eq(posts.id, postId))
+      .returning()
+      .get();
+    logger.info("queries/posts:unhidePost:success", { postId });
+    return result;
+  } catch (error) {
+    logger.error("queries/posts:unhidePost", {
+      postId,
+      error: error instanceof Error ? error.message : String(error),
+    });
+    throw error;
+  }
+}
+
 /** FEED OPERATIONS */
 export async function getPostsInRange(
   days = 3,
