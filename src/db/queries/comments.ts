@@ -193,6 +193,26 @@ export async function decrementReportCountComment(commentId: string) {
     .where(eq(comments.id, commentId));
 }
 
+export async function unhideComment(commentId: string) {
+  try {
+    logger.info("queries/comments:unhideComment", { commentId });
+    const result = await db
+      .update(comments)
+      .set({ hidden: false })
+      .where(eq(comments.id, commentId))
+      .returning()
+      .get();
+    logger.info("queries/comments:unhideComment:success", { commentId });
+    return result;
+  } catch (error) {
+    logger.error("queries/comments:unhideComment", {
+      commentId,
+      error: error instanceof Error ? error.message : String(error),
+    });
+    throw error;
+  }
+}
+
 export async function incrementVoteCountComment(commentId: string) {
   try {
     const comment = await db

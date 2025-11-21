@@ -13,6 +13,7 @@ import { banUser, unbanUser } from "@/db/queries/users_status";
 import { findPostById } from "@/db/queries/posts";
 import { findCommentById } from "@/db/queries/comments";
 import { findUserByUsername, findUserById } from "@/db/queries/users";
+import { restoreHiddenPost, restoreHiddenComment } from "@/services/admin";
 
 // Helper function to check if a user is the SuperUser account
 const isSuperUserAccount = (
@@ -563,5 +564,55 @@ export const unbanUserFn = createServerFn({ method: "POST" })
     return {
       success: true,
       userId,
+    };
+  });
+
+export const adminUnhidePostFn = createServerFn({ method: "POST" })
+  .middleware([moderatorMiddleware])
+  .inputValidator((data: { postId: string }) => data)
+  .handler(async ({ data }) => {
+    const { postId } = data;
+
+    logger.info("adminUnhidePostFn", { postId });
+
+    const result = await restoreHiddenPost(postId);
+    if (!result.success) {
+      logger.error("adminUnhidePostFn", {
+        postId,
+        error: result.error,
+        errorCode: result.errorCode,
+      });
+      return result;
+    }
+
+    logger.info("adminUnhidePostFn", { action: "success", postId });
+    return {
+      success: true,
+      postId: result.postId,
+    };
+  });
+
+export const adminUnhideCommentFn = createServerFn({ method: "POST" })
+  .middleware([moderatorMiddleware])
+  .inputValidator((data: { commentId: string }) => data)
+  .handler(async ({ data }) => {
+    const { commentId } = data;
+
+    logger.info("adminUnhideCommentFn", { commentId });
+
+    const result = await restoreHiddenComment(commentId);
+    if (!result.success) {
+      logger.error("adminUnhideCommentFn", {
+        commentId,
+        error: result.error,
+        errorCode: result.errorCode,
+      });
+      return result;
+    }
+
+    logger.info("adminUnhideCommentFn", { action: "success", commentId });
+    return {
+      success: true,
+      commentId: result.commentId,
     };
   });
