@@ -405,7 +405,7 @@ export default function PostDetail({ post, commentsLength }: PostDetailProps) {
       </div>
       {/* Text content for Ask/text posts */}
       {post.text && (
-        <div className="text-zinc-700 text-xs leading-relaxed mt-3 pr-7 whitespace-pre-wrap">
+        <div className="text-zinc-500 text-xs leading-relaxed mt-3 pr-7 whitespace-pre-wrap">
           {post.text}
         </div>
       )}
