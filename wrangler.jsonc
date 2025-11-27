@@ -41,8 +41,8 @@
         "name": "UserInbox" // Binding name in env
       },
       {
-        "class_name": "NotificationRoom", // Must match export name
-        "name": "NotificationRoom" // Binding name in env
+        "class_name": "NotificationActor", // Must match export name
+        "name": "NotificationActor" // Binding name in env
       }
     ]
   },
@@ -51,7 +51,7 @@
       "new_sqlite_classes": [
         "ChatRoom",
         "UserInbox",
-        "NotificationRoom"
+        "NotificationActor"
       ],
       "tag": "v1"
     }

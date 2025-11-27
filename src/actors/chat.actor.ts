@@ -71,6 +71,8 @@ export const chatRoom = defineRoom({
         throw new Error("Message is required");
       }
 
+
+
       logger.info("chat.onMessage", {
         action: "relay-message",
         toUserId: userId,

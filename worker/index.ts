@@ -13,12 +13,15 @@ import { sendBatchEmails } from "@/lib/email";
 import { env } from "cloudflare:workers";
 import { ChatRoom } from "@/actors/chat.actor";
 import { UserInbox } from "@/dos/inbox";
-import { NotificationRoom } from "@/actors/notification.actor";
+import { NotificationActor } from "@/actors/notification.actor";
 
 export default {
   async fetch(request: Request, env: Env, ctx: ExecutionContext) {
     if (request.url.startsWith("/ws/chat")) {
       const stub = ChatRoom.get("projectarabia-chat");
+      return stub.fetch(request);
+    }else if (request.url.startsWith("/ws/notification")) {
+      const stub = NotificationActor.get("projectarabia-notification");
       return stub.fetch(request);
     }
 
@@ -116,4 +119,4 @@ export default {
   },
 };
 
-export {ChatRoom, UserInbox, NotificationRoom}
+export {ChatRoom, UserInbox, NotificationActor}
