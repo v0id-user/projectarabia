@@ -21,6 +21,7 @@
     "seed:reset": "tsx seed/index.ts --reset"
   },
   "dependencies": {
+    "@cloudflare/actors": "^0.0.1-beta.6",
     "@cloudflare/vite-plugin": "^1.13.8",
     "@libsql/client": "^0.15.15",
     "@marsidev/react-turnstile": "^1.3.1",
@@ -40,6 +41,7 @@
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "resend": "^6.4.0",
+    "verani": "0.1.5",
     "vite-tsconfig-paths": "^5.1.4",
     "zustand": "^5.0.8"
   },

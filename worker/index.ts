@@ -11,9 +11,17 @@ import {
 } from "@/actions/-mailer/queue";
 import { sendBatchEmails } from "@/lib/email";
 import { env } from "cloudflare:workers";
+import { ChatRoom } from "@/actors/chat.actor";
+import { UserInbox } from "@/dos/inbox";
+import { NotificationRoom } from "@/actors/notification.actor";
 
 export default {
   async fetch(request: Request, env: Env, ctx: ExecutionContext) {
+    if (request.url.startsWith("/ws/chat")) {
+      const stub = ChatRoom.get("projectarabia-chat");
+      return stub.fetch(request);
+    }
+
     return handleRequest.fetch(request, {
       context: { cloudflare: { env, ctx } },
     });
@@ -107,3 +115,5 @@ export default {
     console.log("Queue processing completed");
   },
 };
+
+export {ChatRoom, UserInbox, NotificationRoom}
