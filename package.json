@@ -41,7 +41,7 @@
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "resend": "^6.4.0",
-    "verani": "0.1.7",
+    "verani": "0.1.11",
     "vite-tsconfig-paths": "^5.1.4",
     "zustand": "^5.0.8"
   },

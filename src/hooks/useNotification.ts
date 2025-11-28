@@ -1,9 +1,38 @@
-import { useEffect, useEffectEvent, useRef, useCallback } from "react";
+import { useEffect, useCallback, useRef } from "react";
 import { VeraniClient } from "verani/client";
 import {
   useNotificationStore,
   type NotificationData,
 } from "@/stores/notification";
+import { useConnectionStore, createConnectionStateAccessor } from "@/stores/connection";
+import { createConnectionManager } from "@/lib/connection-manager";
+
+// Create connection manager instance for notifications
+const notificationConnectionManager = createConnectionManager(
+  {
+    url: "/ws/notification",
+    reconnection: {
+      maxAttempts: 3,
+    },
+    eventHandlers: {
+      "notification.update": (data: string) => {
+        const addNotification = useNotificationStore.getState().addNotification;
+        try {
+          const parsed = JSON.parse(data);
+          const notification: NotificationData = {
+            id: crypto.randomUUID(),
+            eventType: parsed.type || "unknown",
+            eventData: parsed,
+          };
+          addNotification(notification);
+        } catch (error) {
+          console.error("Failed to parse notification:", error);
+        }
+      },
+    },
+  },
+  createConnectionStateAccessor("notification"),
+);
 
 export interface UseNotificationReturn {
   client: VeraniClient | null;
@@ -17,107 +46,59 @@ export interface UseNotificationReturn {
   unreadCount: number;
 }
 
-export function useNotification(): UseNotificationReturn {
-  const clientRef = useRef<VeraniClient | null>(null);
-  const isConnected = useNotificationStore((state) => state.isConnected);
-  const setIsConnected = useNotificationStore((state) => state.setIsConnected);
-  const isConnecting = useNotificationStore((state) => state.isConnecting);
-  const setIsConnecting = useNotificationStore(
-    (state) => state.setIsConnecting,
-  );
-  const isDisconnected = useNotificationStore((state) => state.isDisconnected);
-  const setIsDisconnected = useNotificationStore(
-    (state) => state.setIsDisconnected,
-  );
-  const isReconnecting = useNotificationStore((state) => state.isReconnecting);
-  const setIsReconnecting = useNotificationStore(
-    (state) => state.setIsReconnecting,
-  );
-  const isError = useNotificationStore((state) => state.isError);
-  const setIsError = useNotificationStore((state) => state.setIsError);
 
-  const addNotification = useNotificationStore(
-    (state) => state.addNotification,
+export function useNotification(): UseNotificationReturn {
+  const connectionState = useConnectionStore((state) =>
+    state.getConnectionState("notification"),
   );
   const notifications = useNotificationStore((state) => state.notifications);
   const unreadCount = notifications.length;
 
-  const setupConnection = useEffectEvent(() => {
-    setIsConnecting(true);
-    setIsDisconnected(false);
-    setIsReconnecting(false);
-    setIsError(false);
+  const {
+    isConnected,
+    isConnecting,
+    isDisconnected,
+    isReconnecting,
+    isError,
+  } = connectionState;
 
-    const newClient = new VeraniClient("/ws/notification", {
-      reconnection: {
-        maxAttempts: 3,
-      },
-    });
-
-    newClient.on("notification.update", (data: string) => {
-      try {
-        const parsed = JSON.parse(data);
-        // Add notification to store
-        const notification: NotificationData = {
-          id: crypto.randomUUID(),
-          eventType: parsed.type || "unknown",
-          eventData: parsed,
-        };
-        addNotification(notification);
-      } catch (error) {
-        console.error("Failed to parse notification:", error);
-      }
-    });
-
-    newClient.on("open", () => {
-      setIsConnected(true);
-      setIsConnecting(false);
-      setIsDisconnected(false);
-    });
-
-    newClient.on("close", () => {
-      setIsConnected(false);
-      setIsDisconnected(true);
-      setIsConnecting(false);
-    });
-
-    newClient.on("reconnecting", () => {
-      setIsReconnecting(true);
-      setIsError(false);
-    });
-
-    newClient.on("error", () => {
-      setIsError(true);
-      setIsReconnecting(false);
-      setIsConnected(false);
-    });
-
-    clientRef.current = newClient;
-
-    return () => {
-      newClient.close();
-      clientRef.current = null;
-      setIsConnected(false);
-      setIsDisconnected(true);
-      setIsConnecting(false);
-      setIsReconnecting(false);
-      setIsError(false);
-    };
-  });
+  // Use ref to track this hook instance (handles React Strict Mode properly)
+  const instanceIdRef = useRef<symbol | null>(null);
 
   useEffect(() => {
-    const cleanup = setupConnection();
-    return cleanup;
+    // Create unique instance ID for this hook
+    if (!instanceIdRef.current) {
+      instanceIdRef.current = Symbol("notification-hook-instance");
+    }
+    const instanceId = instanceIdRef.current;
+
+    // Register this instance with the connection manager
+    notificationConnectionManager.registerInstance(instanceId);
+
+    // Setup connection (will handle concurrent attempts internally)
+    notificationConnectionManager.setup().catch((error) => {
+      console.error("Failed to setup notification connection:", error);
+      useConnectionStore.getState().setConnectionState("notification", {
+        isError: true,
+      });
+    });
+
+    // Cleanup: remove instance and cleanup if this is the last hook
+    return () => {
+      notificationConnectionManager.unregisterInstance(instanceId);
+      // Only cleanup if this is the last active hook
+      if (!notificationConnectionManager.hasActiveInstances()) {
+        notificationConnectionManager.cleanup();
+      }
+    };
   }, []);
 
   const close = useCallback(() => {
-    if (clientRef.current) {
-      clientRef.current.close();
-    }
+    notificationConnectionManager.close();
   }, []);
 
   return {
-    client: clientRef.current,
+    client: notificationConnectionManager.getClient(),
     close,
     isConnected,
     isConnecting,

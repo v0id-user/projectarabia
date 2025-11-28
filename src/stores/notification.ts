@@ -14,18 +14,6 @@ export interface NotificationState {
   addNotification: (notification: NotificationData) => void;
   removeNotification: (notificationId: string) => void;
   clearNotifications: () => void;
-
-  // Connection state
-  isConnected: boolean;
-  isConnecting: boolean;
-  isDisconnected: boolean;
-  isReconnecting: boolean;
-  isError: boolean;
-  setIsConnected: (value: boolean) => void;
-  setIsConnecting: (value: boolean) => void;
-  setIsDisconnected: (value: boolean) => void;
-  setIsReconnecting: (value: boolean) => void;
-  setIsError: (value: boolean) => void;
 }
 
 export const useNotificationStore = create<NotificationState>((set) => ({
@@ -41,16 +29,4 @@ export const useNotificationStore = create<NotificationState>((set) => ({
       ),
     })),
   clearNotifications: () => set({ notifications: [] }),
-
-  // Connection state
-  isConnected: false,
-  isConnecting: false,
-  isDisconnected: true,
-  isReconnecting: false,
-  isError: false,
-  setIsConnected: (value: boolean) => set({ isConnected: value }),
-  setIsConnecting: (value: boolean) => set({ isConnecting: value }),
-  setIsDisconnected: (value: boolean) => set({ isDisconnected: value }),
-  setIsReconnecting: (value: boolean) => set({ isReconnecting: value }),
-  setIsError: (value: boolean) => set({ isError: value }),
 }));
