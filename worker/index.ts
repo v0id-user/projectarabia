@@ -13,18 +13,27 @@ import { sendBatchEmails } from "@/lib/email";
 import { env } from "cloudflare:workers";
 import { ChatRoom } from "@/actors/chat.actor";
 import { UserInbox } from "@/dos/inbox";
-import { NotificationActor } from "@/actors/notification.actor";
+import { Notification } from "@/actors/notification.actor";
+import { logger } from "@/lib/logger";
 
 export default {
   async fetch(request: Request, env: Env, ctx: ExecutionContext) {
-    if (request.url.startsWith("/ws/chat")) {
+    logger.info("worker:fetch: received request", { url: request.url });
+const url = new URL(request.url);
+const pathname = url.pathname;
+    if (pathname.startsWith("/ws/chat")) {
+      logger.info("worker:fetch: matched /ws/chat path, routing to ChatRoom Durable Object");
       const stub = ChatRoom.get("projectarabia-chat");
+      logger.info("worker:fetch: obtained ChatRoom stub, forwarding request");
       return stub.fetch(request);
-    }else if (request.url.startsWith("/ws/notification")) {
-      const stub = NotificationActor.get("projectarabia-notification");
+    } else if (pathname.startsWith("/ws/notification")) {
+      logger.info("worker:fetch: matched /ws/notification path, routing to NotificationActor Durable Object");
+      const stub = Notification.get("projectarabia-notification");
+      logger.info("worker:fetch: obtained NotificationActor stub, forwarding request");
       return stub.fetch(request);
     }
 
+    logger.info("worker:fetch: path did not match any special route, forwarding to @tanstack/react-start handler", { url: request.url });
     return handleRequest.fetch(request, {
       context: { cloudflare: { env, ctx } },
     });
@@ -119,4 +128,4 @@ export default {
   },
 };
 
-export {ChatRoom, UserInbox, NotificationActor}
+export {ChatRoom, UserInbox, Notification}

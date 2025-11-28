@@ -33,12 +33,12 @@ export function BellInbox() {
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="relative p-1 text-zinc-600 hover:text-[#006CFF] transition-colors"
+        className="relative p-1 text-zinc-300 hover:text-white transition-colors"
         aria-label="الإشعارات"
       >
         <Bell size={18} />
         {unreadCount > 0 && (
-          <span className="absolute -top-1 -right-1 bg-[#006CFF] text-white text-[9px] font-mono rounded-full min-w-[16px] h-4 flex items-center justify-center px-1">
+          <span className="absolute -top-1 -right-1 bg-white text-[#006CFF] text-[9px] font-mono rounded-full min-w-[16px] h-4 flex items-center justify-center px-1">
             {unreadCount > 99 ? "99+" : unreadCount}
           </span>
         )}
@@ -46,7 +46,7 @@ export function BellInbox() {
 
       {/* Dropdown */}
       {isOpen && (
-        <div className="absolute left-0 mt-1 w-64 bg-white border border-zinc-200 shadow-sm z-50">
+        <div className="absolute right-0 mt-1 w-64 bg-white border border-zinc-200 shadow-sm z-50">
           {/* Header */}
           <div className="px-2 py-1.5 border-b border-zinc-200 bg-zinc-50">
             <h3 className="text-xs font-mono text-zinc-900">الإشعارات</h3>

@@ -1,11 +1,9 @@
+import { useEffect, useEffectEvent, useRef, useCallback } from "react";
+import { VeraniClient } from "verani/client";
 import {
-  useEffect,
-  useEffectEvent,
-  useRef,
-  useCallback,
-} from "react";
-import { VeraniClient } from "verani";
-import { useNotificationStore, type NotificationData } from "@/stores/notification";
+  useNotificationStore,
+  type NotificationData,
+} from "@/stores/notification";
 
 export interface UseNotificationReturn {
   client: VeraniClient | null;
@@ -21,28 +19,26 @@ export interface UseNotificationReturn {
 
 export function useNotification(): UseNotificationReturn {
   const clientRef = useRef<VeraniClient | null>(null);
-  const [isConnected, setIsConnected] = useNotificationStore((state) => [
-    state.isConnected,
-    state.setIsConnected,
-  ]);
-  const [isConnecting, setIsConnecting] = useNotificationStore((state) => [
-    state.isConnecting,
-    state.setIsConnecting,
-  ]);
-  const [isDisconnected, setIsDisconnected] = useNotificationStore((state) => [
-    state.isDisconnected,
-    state.setIsDisconnected,
-  ]);
-  const [isReconnecting, setIsReconnecting] = useNotificationStore((state) => [
-    state.isReconnecting,
-    state.setIsReconnecting,
-  ]);
-  const [isError, setIsError] = useNotificationStore((state) => [
-    state.isError,
-    state.setIsError,
-  ]);
+  const isConnected = useNotificationStore((state) => state.isConnected);
+  const setIsConnected = useNotificationStore((state) => state.setIsConnected);
+  const isConnecting = useNotificationStore((state) => state.isConnecting);
+  const setIsConnecting = useNotificationStore(
+    (state) => state.setIsConnecting,
+  );
+  const isDisconnected = useNotificationStore((state) => state.isDisconnected);
+  const setIsDisconnected = useNotificationStore(
+    (state) => state.setIsDisconnected,
+  );
+  const isReconnecting = useNotificationStore((state) => state.isReconnecting);
+  const setIsReconnecting = useNotificationStore(
+    (state) => state.setIsReconnecting,
+  );
+  const isError = useNotificationStore((state) => state.isError);
+  const setIsError = useNotificationStore((state) => state.setIsError);
 
-  const addNotification = useNotificationStore((state) => state.addNotification);
+  const addNotification = useNotificationStore(
+    (state) => state.addNotification,
+  );
   const notifications = useNotificationStore((state) => state.notifications);
   const unreadCount = notifications.length;
 

@@ -2,7 +2,7 @@ import { useAppSession } from "@/actions/-sessions/useSession";
 import { logger } from "@/lib/logger";
 import { defineRoom, createActorHandler } from "verani";
 
-export const notificationActor = defineRoom({
+export const notificationRoom = defineRoom({
   name: "notification",
   websocketPath: "/ws/notification",
 
@@ -75,4 +75,4 @@ export const notificationActor = defineRoom({
   },
 });
 
-export const NotificationActor = createActorHandler(notificationActor);
+export const Notification = createActorHandler(notificationRoom);

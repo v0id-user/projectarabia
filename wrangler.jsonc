@@ -30,18 +30,18 @@
       "zone_id": "95646d20d7675139119e47fe4e619b7c"
     }
   ],
-  "migrations": [
-    {
-      "new_sqlite_classes": [
-        "ChatRoom",
-        "UserInbox",
-        "NotificationActor"
-      ],
-      "tag": "v1"
-    }
-  ],
   "env": {
     "production": {
+      "migrations": [
+        {
+          "new_sqlite_classes": [
+            "ChatRoom",
+            "UserInbox",
+            "Notification"
+          ],
+          "tag": "v1"
+        }
+      ],
       "durable_objects": {
         "bindings": [
           {
@@ -53,8 +53,8 @@
             "name": "UserInbox" // Binding name in env
           },
           {
-            "class_name": "NotificationActor", // Must match export name
-            "name": "NotificationActor" // Binding name in env
+            "class_name": "Notification", // Must match export name
+            "name": "Notification" // Binding name in env
           }
         ]
       },
@@ -95,6 +95,16 @@
       }
     },
     "development": {
+      "migrations": [
+        {
+          "new_sqlite_classes": [
+            "ChatRoom",
+            "UserInbox",
+            "Notification"
+          ],
+          "tag": "v1"
+        }
+      ],
       "durable_objects": {
         "bindings": [
           {
@@ -106,8 +116,8 @@
             "name": "UserInbox" // Binding name in env
           },
           {
-            "class_name": "NotificationActor", // Must match export name
-            "name": "NotificationActor" // Binding name in env
+            "class_name": "Notification", // Must match export name
+            "name": "Notification" // Binding name in env
           }
         ]
       },

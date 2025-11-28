@@ -4,6 +4,7 @@ import { create } from "zustand";
 export interface NotificationData {
   id: string;
   eventType: string;
+  // biome-ignore lint/suspicious/noExplicitAny: for now we will allow any data until i implement a proper type infer
   eventData: any;
 }
 
@@ -29,7 +30,8 @@ export interface NotificationState {
 
 export const useNotificationStore = create<NotificationState>((set) => ({
   notifications: [],
-  setNotifications: (notifications: NotificationData[]) => set({ notifications }),
+  setNotifications: (notifications: NotificationData[]) =>
+    set({ notifications }),
   addNotification: (notification: NotificationData) =>
     set((state) => ({ notifications: [...state.notifications, notification] })),
   removeNotification: (notificationId: string) =>
