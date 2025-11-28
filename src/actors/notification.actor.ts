@@ -36,12 +36,18 @@ export const notificationActor = defineRoom({
   onMessage(ctx, frame) {
     logger.info("notification.onMessage", {
       type: frame.type,
-      room: ctx.actor?.sessions?.size > 0 ? "projectarabia-notification" : "unknown",
+      room:
+        ctx.actor?.sessions?.size > 0
+          ? "projectarabia-notification"
+          : "unknown",
       frame: {
         ...frame,
         data: {
           ...frame.data,
-          message: frame.type === "notification.message" ? "[REDACTED]" : frame.data?.message,
+          message:
+            frame.type === "notification.message"
+              ? "[REDACTED]"
+              : frame.data?.message,
         },
       },
     });
@@ -60,7 +66,11 @@ export const notificationActor = defineRoom({
         message: "[REDACTED]",
       });
 
-      ctx.actor.sendToUser(userId, "notification.update", JSON.stringify({ "type": "inbox_changed" }));
+      ctx.actor.sendToUser(
+        userId,
+        "notification.update",
+        JSON.stringify({ type: "inbox_changed" }),
+      );
     }
   },
 });

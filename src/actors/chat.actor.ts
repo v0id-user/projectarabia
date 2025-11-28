@@ -17,7 +17,7 @@ export const chatRoom = defineRoom({
     if (!session.data?.userId) {
       logger.warn("chat.extractMeta", {
         action: "unauthorized-attempt",
-        session: { ...session, data: { ...session.data,  } },
+        session: { ...session, data: { ...session.data } },
       });
       throw new Error("Unauthorized to connect to chat");
     }
@@ -42,7 +42,8 @@ export const chatRoom = defineRoom({
         ...frame,
         data: {
           ...frame.data,
-          message: frame.type === "chat.message" ? "[REDACTED]" : frame.data?.message,
+          message:
+            frame.type === "chat.message" ? "[REDACTED]" : frame.data?.message,
         },
       },
     });
@@ -70,8 +71,6 @@ export const chatRoom = defineRoom({
         });
         throw new Error("Message is required");
       }
-
-
 
       logger.info("chat.onMessage", {
         action: "relay-message",
