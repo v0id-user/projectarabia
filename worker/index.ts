@@ -19,24 +19,31 @@ import { logger } from "@/lib/logger";
 export default {
   async fetch(request: Request, env: Env, ctx: ExecutionContext) {
     logger.info("worker:fetch: received request", { url: request.url });
-const url = new URL(request.url);
-const pathname = url.pathname;
+
+    const url = new URL(request.url);
+    const pathname = url.pathname;
+
     if (pathname.startsWith("/ws/chat")) {
+
       logger.info("worker:fetch: matched /ws/chat path, routing to ChatRoom Durable Object");
       const stub = ChatRoom.get("projectarabia-chat");
       logger.info("worker:fetch: obtained ChatRoom stub, forwarding request");
-      return stub.fetch(request);
+
+      return await stub.fetch(request);
     } else if (pathname.startsWith("/ws/notification")) {
+
       logger.info("worker:fetch: matched /ws/notification path, routing to NotificationActor Durable Object");
       const stub = Notification.get("projectarabia-notification");
       logger.info("worker:fetch: obtained NotificationActor stub, forwarding request");
-      return stub.fetch(request);
-    }
 
-    logger.info("worker:fetch: path did not match any special route, forwarding to @tanstack/react-start handler", { url: request.url });
-    return handleRequest.fetch(request, {
-      context: { cloudflare: { env, ctx } },
-    });
+      return await stub.fetch(request);
+    } else {
+
+      logger.info("worker:fetch: path did not match any special route, forwarding to @tanstack/react-start handler", { url: request.url });
+      return await handleRequest.fetch(request, {
+        context: { cloudflare: { env, ctx } },
+      });
+    }
   },
   async queue(
     batch: MessageBatch<QueueNotificationMessage>,
@@ -128,4 +135,4 @@ const pathname = url.pathname;
   },
 };
 
-export {ChatRoom, UserInbox, Notification}
+export { ChatRoom, UserInbox, Notification }

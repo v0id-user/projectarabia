@@ -113,7 +113,6 @@ export function createConnectionManager(
 
     // Create connection promise to prevent concurrent attempts
     connectionPromise = (async () => {
-
       stateAccessor.setIsConnecting(true);
       stateAccessor.setIsDisconnected(false);
       stateAccessor.setIsReconnecting(false);
@@ -169,7 +168,9 @@ export function createConnectionManager(
 
       // Attach custom event handlers if provided
       if (config.eventHandlers) {
-        for (const [eventName, handler] of Object.entries(config.eventHandlers)) {
+        for (const [eventName, handler] of Object.entries(
+          config.eventHandlers,
+        )) {
           eventHandlers.set(eventName, handler);
           newClient.on(eventName, handler);
         }
@@ -247,4 +248,3 @@ export function createConnectionManager(
     close,
   };
 }
-

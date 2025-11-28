@@ -107,7 +107,8 @@ export function createConnectionStateAccessor(
   connectionId: string,
 ): import("@/lib/connection-manager").ConnectionStateAccessor {
   return {
-    getState: () => useConnectionStore.getState().getConnectionState(connectionId),
+    getState: () =>
+      useConnectionStore.getState().getConnectionState(connectionId),
     setIsConnected: (value) =>
       useConnectionStore.getState().setConnectionState(connectionId, {
         isConnected: value,
@@ -130,4 +131,3 @@ export function createConnectionStateAccessor(
       }),
   };
 }
-

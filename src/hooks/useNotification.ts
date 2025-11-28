@@ -4,7 +4,10 @@ import {
   useNotificationStore,
   type NotificationData,
 } from "@/stores/notification";
-import { useConnectionStore, createConnectionStateAccessor } from "@/stores/connection";
+import {
+  useConnectionStore,
+  createConnectionStateAccessor,
+} from "@/stores/connection";
 import { createConnectionManager } from "@/lib/connection-manager";
 
 // Create connection manager instance for notifications
@@ -46,7 +49,6 @@ export interface UseNotificationReturn {
   unreadCount: number;
 }
 
-
 export function useNotification(): UseNotificationReturn {
   const connectionState = useConnectionStore((state) =>
     state.getConnectionState("notification"),
@@ -54,13 +56,8 @@ export function useNotification(): UseNotificationReturn {
   const notifications = useNotificationStore((state) => state.notifications);
   const unreadCount = notifications.length;
 
-  const {
-    isConnected,
-    isConnecting,
-    isDisconnected,
-    isReconnecting,
-    isError,
-  } = connectionState;
+  const { isConnected, isConnecting, isDisconnected, isReconnecting, isError } =
+    connectionState;
 
   // Use ref to track this hook instance (handles React Strict Mode properly)
   const instanceIdRef = useRef<symbol | null>(null);
