@@ -2,10 +2,10 @@ import {
   useEffect,
   useEffectEvent,
   useRef,
-  useState,
   useCallback,
 } from "react";
 import { VeraniClient } from "verani";
+import { useNotificationStore, type NotificationData } from "@/stores/notification";
 
 export interface UseNotificationReturn {
   client: VeraniClient | null;
@@ -15,21 +15,36 @@ export interface UseNotificationReturn {
   isDisconnected: boolean;
   isReconnecting: boolean;
   isError: boolean;
+  notifications: NotificationData[];
+  unreadCount: number;
 }
 
-export function useNotification(
-  onNotification: (notification: Notification) => void,
-): UseNotificationReturn {
-  const [client, setClient] = useState<VeraniClient | null>(null);
-  const [isConnected, setIsConnected] = useState(false);
-  const [isConnecting, setIsConnecting] = useState(false);
-  const [isDisconnected, setIsDisconnected] = useState(true);
-  const [isReconnecting, setIsReconnecting] = useState(false);
-  const [isError, setIsError] = useState(false);
+export function useNotification(): UseNotificationReturn {
+  const clientRef = useRef<VeraniClient | null>(null);
+  const [isConnected, setIsConnected] = useNotificationStore((state) => [
+    state.isConnected,
+    state.setIsConnected,
+  ]);
+  const [isConnecting, setIsConnecting] = useNotificationStore((state) => [
+    state.isConnecting,
+    state.setIsConnecting,
+  ]);
+  const [isDisconnected, setIsDisconnected] = useNotificationStore((state) => [
+    state.isDisconnected,
+    state.setIsDisconnected,
+  ]);
+  const [isReconnecting, setIsReconnecting] = useNotificationStore((state) => [
+    state.isReconnecting,
+    state.setIsReconnecting,
+  ]);
+  const [isError, setIsError] = useNotificationStore((state) => [
+    state.isError,
+    state.setIsError,
+  ]);
 
-  // We want the latest onNotification provided by the user.
-  const onNotificationRef = useRef(onNotification);
-  onNotificationRef.current = onNotification;
+  const addNotification = useNotificationStore((state) => state.addNotification);
+  const notifications = useNotificationStore((state) => state.notifications);
+  const unreadCount = notifications.length;
 
   const setupConnection = useEffectEvent(() => {
     setIsConnecting(true);
@@ -43,8 +58,19 @@ export function useNotification(
       },
     });
 
-    newClient.on("notification.update", (notification: Notification) => {
-      onNotificationRef.current(notification);
+    newClient.on("notification.update", (data: string) => {
+      try {
+        const parsed = JSON.parse(data);
+        // Add notification to store
+        const notification: NotificationData = {
+          id: crypto.randomUUID(),
+          eventType: parsed.type || "unknown",
+          eventData: parsed,
+        };
+        addNotification(notification);
+      } catch (error) {
+        console.error("Failed to parse notification:", error);
+      }
     });
 
     newClient.on("open", () => {
@@ -70,11 +96,11 @@ export function useNotification(
       setIsConnected(false);
     });
 
-    setClient(newClient);
+    clientRef.current = newClient;
 
     return () => {
       newClient.close();
-      setClient(null);
+      clientRef.current = null;
       setIsConnected(false);
       setIsDisconnected(true);
       setIsConnecting(false);
@@ -89,18 +115,20 @@ export function useNotification(
   }, []);
 
   const close = useCallback(() => {
-    if (client) {
-      client.close();
+    if (clientRef.current) {
+      clientRef.current.close();
     }
-  }, [client]);
+  }, []);
 
   return {
-    client,
+    client: clientRef.current,
     close,
     isConnected,
     isConnecting,
     isDisconnected,
     isReconnecting,
     isError,
+    notifications,
+    unreadCount,
   };
 }
