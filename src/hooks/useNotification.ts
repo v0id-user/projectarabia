@@ -16,6 +16,7 @@ const notificationConnectionManager = createConnectionManager(
   {
     url: "/ws/notification",
     reconnection: {
+      enabled: true,
       maxAttempts: 3,
     },
     eventHandlers: {

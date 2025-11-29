@@ -15,6 +15,7 @@ export interface ConnectionConfig {
   url: string;
   token?: SignedToken;
   reconnection?: {
+    enabled?: boolean;
     maxAttempts?: number;
   };
   // biome-ignore lint/suspicious/noExplicitAny: for now we will allow any data until i implement a proper type infer
@@ -138,6 +139,7 @@ export function createConnectionManager(
 
       const newClient = new VeraniClient(connectionUrl, {
         reconnection: {
+          enabled: config.reconnection?.enabled ?? true,
           maxAttempts: config.reconnection?.maxAttempts ?? 3,
         },
         pingInterval: 10000,
