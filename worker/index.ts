@@ -11,9 +11,9 @@ import {
 } from "@/actions/-mailer/queue";
 import { sendBatchEmails } from "@/lib/email";
 import { env } from "cloudflare:workers";
-import { ChatRoom } from "@/actors/chat.actor";
+import { Chat, chatStub } from "@/actors/chat.actor";
 import { UserInbox } from "@/dos/inbox";
-import { Notification } from "@/actors/notification.actor";
+import { Notification, notificationStub } from "@/actors/notification.actor";
 import { logger } from "@/lib/logger";
 
 export default {
@@ -24,19 +24,11 @@ export default {
     const pathname = url.pathname;
 
     if (pathname.startsWith("/ws/chat")) {
-
-      logger.info("worker:fetch: matched /ws/chat path, routing to ChatRoom Durable Object");
-      const stub = ChatRoom.get("projectarabia-chat");
-      logger.info("worker:fetch: obtained ChatRoom stub, forwarding request");
-
-      return await stub.fetch(request);
+      logger.info("worker:fetch: forwarding request to chatStub");
+      return await chatStub.fetch(request);
     } else if (pathname.startsWith("/ws/notification")) {
-
-      logger.info("worker:fetch: matched /ws/notification path, routing to NotificationActor Durable Object");
-      const stub = Notification.get("projectarabia-notification");
-      logger.info("worker:fetch: obtained NotificationActor stub, forwarding request");
-
-      return await stub.fetch(request);
+      logger.info("worker:fetch: forwarding request to notificationStub");
+      return await notificationStub.fetch(request);
     } else {
 
       logger.info("worker:fetch: path did not match any special route, forwarding to @tanstack/react-start handler", { url: request.url });
@@ -135,4 +127,4 @@ export default {
   },
 };
 
-export { ChatRoom, UserInbox, Notification }
+export { Chat, UserInbox, Notification }

@@ -1,5 +1,5 @@
 import { useEffect, useCallback, useRef } from "react";
-import { VeraniClient } from "verani/client";
+import type { VeraniClient } from "verani/client";
 import {
   useNotificationStore,
   type NotificationData,

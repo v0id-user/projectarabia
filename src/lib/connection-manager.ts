@@ -15,6 +15,7 @@ export interface ConnectionConfig {
   reconnection?: {
     maxAttempts?: number;
   };
+  // biome-ignore lint/suspicious/noExplicitAny: for now we will allow any data until i implement a proper type infer
   eventHandlers?: Record<string, (...args: any[]) => void>;
 }
 
@@ -90,6 +91,7 @@ export function createConnectionManager(
   let clientInstance: VeraniClient | null = null;
   const activeHookInstances = new Set<symbol>();
   let connectionPromise: Promise<void> | null = null;
+  // biome-ignore lint/suspicious/noExplicitAny: for now we will allow any data until i implement a proper type infer
   const eventHandlers = new Map<string, (...args: any[]) => void>();
 
   async function setup(): Promise<void> {

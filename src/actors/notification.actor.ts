@@ -6,7 +6,13 @@ export const notificationRoom = defineRoom({
   name: "notification",
   websocketPath: "/ws/notification",
 
-  extractMeta: async () => {
+  extractMeta: async (_ctx) => {
+    // TODO: use ctx.url, to extract the token
+    //       before connecting requests a token short-lived HMAC signed token
+    //       then use it in here to validate and work with the user
+
+    logger.info("notification.extractMeta", { action: "before-useAppSession" });
+    // TODO: this cause infinite loop when used in the context of a server function
     const session = await useAppSession();
     logger.info("notification.extractMeta", {
       action: "check-session",
@@ -76,3 +82,4 @@ export const notificationRoom = defineRoom({
 });
 
 export const Notification = createActorHandler(notificationRoom);
+export const notificationStub = Notification.get("projectarabia-notification");
