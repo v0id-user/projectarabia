@@ -1,5 +1,6 @@
 import { VeraniClient } from "verani/client";
 import type { ConnectionState } from "@/stores/connection";
+import type { SignedToken } from "./tokens";
 
 export interface ConnectionStateAccessor {
   getState: () => ConnectionState;
@@ -12,6 +13,7 @@ export interface ConnectionStateAccessor {
 
 export interface ConnectionConfig {
   url: string;
+  token?: SignedToken;
   reconnection?: {
     maxAttempts?: number;
   };
@@ -21,7 +23,7 @@ export interface ConnectionConfig {
 
 export interface ConnectionManager {
   getClient: () => VeraniClient | null;
-  setup: () => Promise<void>;
+  setup: (token?: SignedToken) => Promise<void>;
   cleanup: () => void;
   registerInstance: (instanceId: symbol) => void;
   unregisterInstance: (instanceId: symbol) => void;
@@ -94,7 +96,7 @@ export function createConnectionManager(
   // biome-ignore lint/suspicious/noExplicitAny: for now we will allow any data until i implement a proper type infer
   const eventHandlers = new Map<string, (...args: any[]) => void>();
 
-  async function setup(): Promise<void> {
+  async function setup(providedToken?: SignedToken): Promise<void> {
     // If connection is already being established, wait for it
     if (connectionPromise) {
       return connectionPromise;
@@ -120,10 +122,22 @@ export function createConnectionManager(
       stateAccessor.setIsReconnecting(false);
       stateAccessor.setIsError(false);
 
-      const newClient = new VeraniClient(config.url, {
+      // Use provided token, fallback to config token
+      const token = providedToken ?? config.token;
+
+      // Append token to URL if provided
+      let connectionUrl = config.url;
+      if (token?.signed) {
+        const separator = config.url.includes("?") ? "&" : "?";
+        connectionUrl = `${config.url}${separator}token=${encodeURIComponent(token.signed)}`;
+      }
+
+      const newClient = new VeraniClient(connectionUrl, {
         reconnection: {
           maxAttempts: config.reconnection?.maxAttempts ?? 3,
         },
+        pingInterval: 10000,
+        pongTimeout: 5000,
       });
 
       // Create default event handlers

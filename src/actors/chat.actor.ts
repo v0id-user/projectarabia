@@ -87,4 +87,3 @@ export const chatRoom = defineRoom({
 
 // Create the Durable Object class
 export const Chat = createActorHandler(chatRoom);
-export const chatStub = Chat.get("projectarabia-chat");

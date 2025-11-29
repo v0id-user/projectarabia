@@ -1,42 +1,67 @@
-import { useAppSession } from "@/actions/-sessions/useSession";
 import { logger } from "@/lib/logger";
 import { defineRoom, createActorHandler } from "verani";
+import { dehydrateSignedToken } from "@/lib/tokens";
+import type { SignedToken } from "@/lib/tokens";
+
+type SessionData = {
+  userId: string;
+  email: string;
+  moderator: boolean;
+};
 
 export const notificationRoom = defineRoom({
   name: "notification",
   websocketPath: "/ws/notification",
 
-  extractMeta: async (_ctx) => {
-    // TODO: use ctx.url, to extract the token
-    //       before connecting requests a token short-lived HMAC signed token
-    //       then use it in here to validate and work with the user
+  extractMeta: async (ctx) => {
+    logger.info("notification.extractMeta", { action: "extracting-token" });
 
-    logger.info("notification.extractMeta", { action: "before-useAppSession" });
-    // TODO: this cause infinite loop when used in the context of a server function
-    const session = await useAppSession();
-    logger.info("notification.extractMeta", {
-      action: "check-session",
-      userId: session.data?.userId,
-    });
+    // Extract token from URL query parameters
+    const url = new URL(ctx.url);
+    const tokenParam = url.searchParams.get("token");
 
-    if (!session.data?.userId) {
+    if (!tokenParam) {
       logger.warn("notification.extractMeta", {
-        action: "unauthorized-attempt",
-        session: { ...session, data: { ...session.data } },
+        action: "missing-token",
+        url: ctx.url,
       });
-      throw new Error("Unauthorized to connect to notification");
+      throw new Error("Unauthorized to connect to notification: missing token");
     }
 
-    logger.info("notification.extractMeta", {
-      action: "authorized",
-      userId: session.data.userId,
-    });
+    try {
+      // Parse the signed token from the query parameter
+      // The token format is "token.signature" (base64url.base64url)
+      const [token, signature] = tokenParam.split(".");
+      if (!token || !signature) {
+        throw new Error("Malformed token format");
+      }
 
-    return {
-      userId: session.data.userId,
-      clientId: session.data.userId,
-      channels: ["notification:projectarabia-notification"],
-    };
+      const signedToken: SignedToken = {
+        token,
+        signature,
+        signed: tokenParam,
+      };
+
+      // Validate and decode the token
+      const sessionData = await dehydrateSignedToken<SessionData>(signedToken);
+
+      logger.info("notification.extractMeta", {
+        action: "token-validated",
+        userId: sessionData.userId,
+      });
+
+      return {
+        userId: sessionData.userId,
+        clientId: sessionData.userId,
+        channels: ["notification:projectarabia-notification"],
+      };
+    } catch (error) {
+      logger.warn("notification.extractMeta", {
+        action: "token-validation-failed",
+        error: error instanceof Error ? error.message : String(error),
+      });
+      throw new Error("Unauthorized to connect to notification: invalid token");
+    }
   },
 
   onMessage(ctx, frame) {
@@ -82,4 +107,3 @@ export const notificationRoom = defineRoom({
 });
 
 export const Notification = createActorHandler(notificationRoom);
-export const notificationStub = Notification.get("projectarabia-notification");

@@ -11,9 +11,9 @@ import {
 } from "@/actions/-mailer/queue";
 import { sendBatchEmails } from "@/lib/email";
 import { env } from "cloudflare:workers";
-import { Chat, chatStub } from "@/actors/chat.actor";
+import { Chat } from "@/actors/chat.actor";
 import { UserInbox } from "@/dos/inbox";
-import { Notification, notificationStub } from "@/actors/notification.actor";
+import { Notification } from "@/actors/notification.actor";
 import { logger } from "@/lib/logger";
 
 export default {
@@ -25,10 +25,12 @@ export default {
 
     if (pathname.startsWith("/ws/chat")) {
       logger.info("worker:fetch: forwarding request to chatStub");
-      return await chatStub.fetch(request);
+      const chat = Chat.get("projectarabia-chat");
+      return await chat.fetch(request);
     } else if (pathname.startsWith("/ws/notification")) {
       logger.info("worker:fetch: forwarding request to notificationStub");
-      return await notificationStub.fetch(request);
+      const notification = Notification.get("projectarabia-notification");
+      return await notification.fetch(request);
     } else {
 
       logger.info("worker:fetch: path did not match any special route, forwarding to @tanstack/react-start handler", { url: request.url });

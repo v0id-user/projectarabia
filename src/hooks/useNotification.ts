@@ -1,4 +1,4 @@
-import { useEffect, useCallback, useRef } from "react";
+import { useEffect, useCallback, useRef, useState } from "react";
 import type { VeraniClient } from "verani/client";
 import {
   useNotificationStore,
@@ -9,6 +9,7 @@ import {
   createConnectionStateAccessor,
 } from "@/stores/connection";
 import { createConnectionManager } from "@/lib/connection-manager";
+import { getEphemeralTokenFn } from "@/actions/ephemeralTokens";
 
 // Create connection manager instance for notifications
 const notificationConnectionManager = createConnectionManager(
@@ -59,10 +60,47 @@ export function useNotification(): UseNotificationReturn {
   const { isConnected, isConnecting, isDisconnected, isReconnecting, isError } =
     connectionState;
 
+  const [token, setToken] = useState<Awaited<ReturnType<typeof getEphemeralTokenFn>> | undefined>(undefined);
+  const [tokenError, setTokenError] = useState<Error | null>(null);
+
   // Use ref to track this hook instance (handles React Strict Mode properly)
   const instanceIdRef = useRef<symbol | null>(null);
 
+  // Fetch token before setting up connection
   useEffect(() => {
+    let cancelled = false;
+
+    async function fetchToken() {
+      try {
+        const ephemeralToken = await getEphemeralTokenFn();
+        if (!cancelled) {
+          setToken(ephemeralToken);
+          setTokenError(null);
+        }
+      } catch (error) {
+        if (!cancelled) {
+          console.error("Failed to fetch ephemeral token:", error);
+          setTokenError(error instanceof Error ? error : new Error("Failed to fetch token"));
+          useConnectionStore.getState().setConnectionState("notification", {
+            isError: true,
+          });
+        }
+      }
+    }
+
+    fetchToken();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    // Don't setup connection if token hasn't been fetched yet or if there was an error
+    if (!token || tokenError) {
+      return;
+    }
+
     // Create unique instance ID for this hook
     if (!instanceIdRef.current) {
       instanceIdRef.current = Symbol("notification-hook-instance");
@@ -72,8 +110,8 @@ export function useNotification(): UseNotificationReturn {
     // Register this instance with the connection manager
     notificationConnectionManager.registerInstance(instanceId);
 
-    // Setup connection (will handle concurrent attempts internally)
-    notificationConnectionManager.setup().catch((error) => {
+    // Setup connection with token (will handle concurrent attempts internally)
+    notificationConnectionManager.setup(token).catch((error) => {
       console.error("Failed to setup notification connection:", error);
       useConnectionStore.getState().setConnectionState("notification", {
         isError: true,
@@ -88,7 +126,7 @@ export function useNotification(): UseNotificationReturn {
         notificationConnectionManager.cleanup();
       }
     };
-  }, []);
+  }, [token, tokenError]);
 
   const close = useCallback(() => {
     notificationConnectionManager.close();
