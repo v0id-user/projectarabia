@@ -15,13 +15,11 @@ function base64UrlEncode(str: string): string {
   // Convert bytes to binary string, then to base64
   let binary = "";
   for (let i = 0; i < bytes.length; i++) {
+    // biome-ignore lint/style/noNonNullAssertion: we want it to fail if the bytes are not set
     binary += String.fromCharCode(bytes[i]!);
   }
   // Convert to base64, then make it URL-safe
-  return btoa(binary)
-    .replace(/\+/g, "-")
-    .replace(/\//g, "_")
-    .replace(/=/g, "");
+  return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
 }
 
 /**
@@ -45,10 +43,7 @@ function base64UrlDecode(str: string): string {
 /**
  * Create HMAC signature using Web Crypto API (browser-compatible)
  */
-async function createHmacSignature(
-  data: string,
-  key: string,
-): Promise<string> {
+async function createHmacSignature(data: string, key: string): Promise<string> {
   // Import the key for HMAC
   const keyData = new TextEncoder().encode(key);
   const cryptoKey = await crypto.subtle.importKey(
@@ -67,12 +62,10 @@ async function createHmacSignature(
   const signatureArray = new Uint8Array(signature);
   let binary = "";
   for (let i = 0; i < signatureArray.length; i++) {
+    // biome-ignore lint/style/noNonNullAssertion: we want it to fail if the signature array is not set
     binary += String.fromCharCode(signatureArray[i]!);
   }
-  return btoa(binary)
-    .replace(/\+/g, "-")
-    .replace(/\//g, "_")
-    .replace(/=/g, "");
+  return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
 }
 
 /**
@@ -127,6 +120,7 @@ async function verifyHmacSignature(
  */
 export async function createSignedToken<T>(
   payload: T,
+  // biome-ignore lint/style/noNonNullAssertion: we want it to fail if the session secret is not set
   key: string = process.env.SESSION_SECRET!,
 ): Promise<SignedToken> {
   const json = JSON.stringify(payload);
@@ -145,6 +139,7 @@ export async function createSignedToken<T>(
  */
 export async function dehydrateSignedToken<T>(
   signedToken: SignedToken,
+  // biome-ignore lint/style/noNonNullAssertion: we want it to fail if the session secret is not set
   key: string = process.env.SESSION_SECRET!,
 ): Promise<T> {
   const { token, signature } = signedToken;

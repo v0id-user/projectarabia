@@ -1,4 +1,7 @@
-import { VeraniClient, type ConnectionState as VeraniConnectionState } from "verani/client";
+import {
+  VeraniClient,
+  type ConnectionState as VeraniConnectionState,
+} from "verani/client";
 import type { ConnectionState } from "@/stores/connection";
 import type { SignedToken } from "./tokens";
 

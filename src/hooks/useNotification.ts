@@ -61,7 +61,9 @@ export function useNotification(): UseNotificationReturn {
   const { isConnected, isConnecting, isDisconnected, isReconnecting, isError } =
     connectionState;
 
-  const [token, setToken] = useState<Awaited<ReturnType<typeof getEphemeralTokenFn>> | undefined>(undefined);
+  const [token, setToken] = useState<
+    Awaited<ReturnType<typeof getEphemeralTokenFn>> | undefined
+  >(undefined);
   const [tokenError, setTokenError] = useState<Error | null>(null);
 
   // Use ref to track this hook instance (handles React Strict Mode properly)
@@ -81,7 +83,9 @@ export function useNotification(): UseNotificationReturn {
       } catch (error) {
         if (!cancelled) {
           console.error("Failed to fetch ephemeral token:", error);
-          setTokenError(error instanceof Error ? error : new Error("Failed to fetch token"));
+          setTokenError(
+            error instanceof Error ? error : new Error("Failed to fetch token"),
+          );
           useConnectionStore.getState().setConnectionState("notification", {
             isError: true,
           });

@@ -65,9 +65,7 @@ notificationRoom.on("notification.update", (ctx, data) => {
   logger.info("notification.onMessage", {
     type: "notification.update",
     room:
-      ctx.actor?.sessions?.size > 0
-        ? "projectarabia-notification"
-        : "unknown",
+      ctx.actor?.sessions?.size > 0 ? "projectarabia-notification" : "unknown",
     frame: {
       type: "notification.update",
       data: {
