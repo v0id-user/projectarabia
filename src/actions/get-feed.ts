@@ -12,7 +12,7 @@ import { useAppSession } from "./-sessions/useSession";
 import { z } from "zod";
 import { logger } from "@/lib/logger";
 
-const HOT_POSTS_DAYS = 7;
+const HOT_POSTS_DAYS = 14;
 const MAX_POSTS = 50;
 
 const cursorInputSchema = z.object({
