@@ -35,7 +35,7 @@
       "migrations": [
         {
           "new_sqlite_classes": [
-            "ChatRoom",
+            "Chat",
             "UserInbox",
             "Notification"
           ],
@@ -45,8 +45,8 @@
       "durable_objects": {
         "bindings": [
           {
-            "class_name": "ChatRoom", // Must match export name
-            "name": "ChatRoom" // Binding name in env
+            "class_name": "Chat", // Must match export name
+            "name": "Chat" // Binding name in env
           },
           {
             "class_name": "UserInbox", // Must match export name
@@ -98,7 +98,7 @@
       "migrations": [
         {
           "new_sqlite_classes": [
-            "ChatRoom",
+            "Chat",
             "UserInbox",
             "Notification"
           ],
@@ -108,8 +108,8 @@
       "durable_objects": {
         "bindings": [
           {
-            "class_name": "ChatRoom", // Must match export name
-            "name": "ChatRoom" // Binding name in env
+            "class_name": "Chat", // Must match export name
+            "name": "Chat" // Binding name in env
           },
           {
             "class_name": "UserInbox", // Must match export name
