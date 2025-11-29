@@ -14,7 +14,6 @@ export interface ConnectionStoreState {
     connectionId: string,
     state: Partial<ConnectionState>,
   ) => void;
-  resetConnection: (connectionId: string) => void;
   getConnectionState: (connectionId: string) => ConnectionState;
 }
 
@@ -40,64 +39,11 @@ export const useConnectionStore = create<ConnectionStoreState>((set, get) => ({
       },
     })),
 
-  resetConnection: (connectionId) =>
-    set((store) => {
-      const { [connectionId]: _, ...rest } = store.connections;
-      return { connections: rest };
-    }),
-
   getConnectionState: (connectionId) => {
     const state = get();
     return state.connections[connectionId] ?? defaultConnectionState;
   },
 }));
-
-// Helper hooks for specific connections
-export function useNotificationConnection() {
-  const connectionState = useConnectionStore((state) =>
-    state.getConnectionState("notification"),
-  );
-  const setConnectionState = useConnectionStore(
-    (state) => state.setConnectionState,
-  );
-
-  return {
-    ...connectionState,
-    setIsConnected: (value: boolean) =>
-      setConnectionState("notification", { isConnected: value }),
-    setIsConnecting: (value: boolean) =>
-      setConnectionState("notification", { isConnecting: value }),
-    setIsDisconnected: (value: boolean) =>
-      setConnectionState("notification", { isDisconnected: value }),
-    setIsReconnecting: (value: boolean) =>
-      setConnectionState("notification", { isReconnecting: value }),
-    setIsError: (value: boolean) =>
-      setConnectionState("notification", { isError: value }),
-  };
-}
-
-export function useChatConnection() {
-  const connectionState = useConnectionStore((state) =>
-    state.getConnectionState("chat"),
-  );
-  const setConnectionState = useConnectionStore(
-    (state) => state.setConnectionState,
-  );
-
-  return {
-    ...connectionState,
-    setIsConnected: (value: boolean) =>
-      setConnectionState("chat", { isConnected: value }),
-    setIsConnecting: (value: boolean) =>
-      setConnectionState("chat", { isConnecting: value }),
-    setIsDisconnected: (value: boolean) =>
-      setConnectionState("chat", { isDisconnected: value }),
-    setIsReconnecting: (value: boolean) =>
-      setConnectionState("chat", { isReconnecting: value }),
-    setIsError: (value: boolean) =>
-      setConnectionState("chat", { isError: value }),
-  };
-}
 
 /**
  * Creates a connection state accessor for use with connection managers.
