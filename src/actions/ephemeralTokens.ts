@@ -1,13 +1,9 @@
 import { createServerFn } from "@tanstack/react-start";
 import { useAppSession } from "./-sessions/useSession";
 import { createSignedToken, type SignedToken } from "../lib/tokens";
+import type { SessionData } from "./-sessions/useSession";
 import { logger } from "../lib/logger";
 
-type SessionData = {
-  userId: string;
-  email?: string;
-  moderator: boolean;
-};
 
 /**
  * Create an ephemeral token from session data.

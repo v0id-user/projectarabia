@@ -1,13 +1,8 @@
-import { logger } from "@/lib/logger";
 import { defineRoom, createActorHandler } from "verani";
+import { logger } from "@/lib/logger";
 import { dehydrateSignedToken } from "@/lib/tokens";
 import type { SignedToken } from "@/lib/tokens";
-
-type SessionData = {
-  userId: string;
-  email: string;
-  moderator: boolean;
-};
+import type { SessionData } from "@/actions/-sessions/useSession";
 
 export const notificationRoom = defineRoom({
   name: "notification",
