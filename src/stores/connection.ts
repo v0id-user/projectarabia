@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import type { ConnectionStateAccessor } from "@/lib/connection-manager";
 
 export interface ConnectionState {
   isConnected: boolean;
@@ -51,7 +52,7 @@ export const useConnectionStore = create<ConnectionStoreState>((set, get) => ({
  */
 export function createConnectionStateAccessor(
   connectionId: string,
-): import("@/lib/connection-manager").ConnectionStateAccessor {
+): ConnectionStateAccessor {
   return {
     getState: () =>
       useConnectionStore.getState().getConnectionState(connectionId),
