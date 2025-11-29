@@ -177,10 +177,14 @@ export function createConnectionManager(
       eventHandlers.set("error", errorHandler);
 
       // Attach default event listeners
-      newClient.on("open", openHandler);
-      newClient.on("close", closeHandler);
-      newClient.on("reconnecting", reconnectingHandler);
-      newClient.on("error", errorHandler);
+      newClient.onOpen(openHandler);
+      newClient.onClose(closeHandler);
+      newClient.onStateChange((state) => {
+        if (state === "reconnecting") {
+          reconnectingHandler();
+        }
+      });
+      newClient.onError(errorHandler);
 
       // Attach custom event handlers if provided
       if (config.eventHandlers) {
