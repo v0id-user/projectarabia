@@ -1,4 +1,4 @@
-import { VeraniClient } from "verani/client";
+import { VeraniClient, type ConnectionState as VeraniConnectionState } from "verani/client";
 import type { ConnectionState } from "@/stores/connection";
 import type { SignedToken } from "./tokens";
 
@@ -94,7 +94,16 @@ export function createConnectionManager(
   const activeHookInstances = new Set<symbol>();
   let connectionPromise: Promise<void> | null = null;
   // biome-ignore lint/suspicious/noExplicitAny: for now we will allow any data until i implement a proper type infer
-  const eventHandlers = new Map<string, (...args: any[]) => void>();
+  const customEventHandlers = new Map<string, (...args: any[]) => void>();
+
+  // Map VeraniClient's ConnectionState to our boolean flags
+  function syncStateFromVerani(state: VeraniConnectionState): void {
+    stateAccessor.setIsConnected(state === "connected");
+    stateAccessor.setIsConnecting(state === "connecting");
+    stateAccessor.setIsDisconnected(state === "disconnected");
+    stateAccessor.setIsReconnecting(state === "reconnecting");
+    stateAccessor.setIsError(state === "error");
+  }
 
   async function setup(providedToken?: SignedToken): Promise<void> {
     // If connection is already being established, wait for it
@@ -104,24 +113,19 @@ export function createConnectionManager(
 
     // If client already exists and is in a valid state, don't create a new one
     if (clientInstance) {
-      const state = stateAccessor.getState();
+      const state = clientInstance.getState();
       // Reuse existing client if it's connected or connecting
-      if (state.isConnected || state.isConnecting) {
+      if (state === "connected" || state === "connecting") {
         return Promise.resolve();
       }
       // If client exists but is in error/disconnected state, clean it up first
-      if (state.isError || state.isDisconnected) {
+      if (state === "error" || state === "disconnected") {
         cleanup();
       }
     }
 
     // Create connection promise to prevent concurrent attempts
     connectionPromise = (async () => {
-      stateAccessor.setIsConnecting(true);
-      stateAccessor.setIsDisconnected(false);
-      stateAccessor.setIsReconnecting(false);
-      stateAccessor.setIsError(false);
-
       // Use provided token, fallback to config token
       const token = providedToken ?? config.token;
 
@@ -140,63 +144,28 @@ export function createConnectionManager(
         pongTimeout: 5000,
       });
 
-      // Create default event handlers
-      const openHandler = () => {
-        stateAccessor.setIsConnected(true);
-        stateAccessor.setIsConnecting(false);
-        stateAccessor.setIsDisconnected(false);
-      };
-
-      const closeHandler = () => {
-        stateAccessor.setIsConnected(false);
-        stateAccessor.setIsDisconnected(true);
-        stateAccessor.setIsConnecting(false);
-        // If we're not intentionally closing, mark for potential reconnection
-        if (activeHookInstances.size > 0) {
-          stateAccessor.setIsReconnecting(false);
-        }
-      };
-
-      const reconnectingHandler = () => {
-        stateAccessor.setIsReconnecting(true);
-        stateAccessor.setIsError(false);
-      };
-
-      const errorHandler = () => {
-        stateAccessor.setIsError(true);
-        stateAccessor.setIsReconnecting(false);
-        stateAccessor.setIsConnected(false);
-        // After max reconnection attempts, reset connection promise to allow retry
-        connectionPromise = null;
-      };
-
-      // Store default handlers
-      eventHandlers.set("open", openHandler);
-      eventHandlers.set("close", closeHandler);
-      eventHandlers.set("reconnecting", reconnectingHandler);
-      eventHandlers.set("error", errorHandler);
-
-      // Attach default event listeners
-      newClient.onOpen(openHandler);
-      newClient.onClose(closeHandler);
+      // Use VeraniClient's built-in state change handler to sync state
       newClient.onStateChange((state) => {
-        if (state === "reconnecting") {
-          reconnectingHandler();
+        syncStateFromVerani(state);
+        // Reset connection promise on error to allow retry
+        if (state === "error") {
+          connectionPromise = null;
         }
       });
-      newClient.onError(errorHandler);
 
       // Attach custom event handlers if provided
       if (config.eventHandlers) {
         for (const [eventName, handler] of Object.entries(
           config.eventHandlers,
         )) {
-          eventHandlers.set(eventName, handler);
+          customEventHandlers.set(eventName, handler);
           newClient.on(eventName, handler);
         }
       }
 
       clientInstance = newClient;
+      // Sync initial state
+      syncStateFromVerani(newClient.getState());
       connectionPromise = null; // Clear promise after successful setup
     })();
 
@@ -208,8 +177,8 @@ export function createConnectionManager(
       return;
     }
 
-    // Remove all event listeners before closing
-    for (const [eventName, handler] of eventHandlers.entries()) {
+    // Remove custom event listeners before closing
+    for (const [eventName, handler] of customEventHandlers.entries()) {
       try {
         clientInstance.off(eventName, handler);
       } catch (error) {
@@ -217,7 +186,7 @@ export function createConnectionManager(
       }
     }
 
-    // Close the connection
+    // Close the connection (VeraniClient handles cleanup internally)
     try {
       clientInstance.close();
     } catch (error) {
@@ -227,8 +196,8 @@ export function createConnectionManager(
     clientInstance = null;
     connectionPromise = null; // Clear connection promise
 
-    // Clear event handlers
-    eventHandlers.clear();
+    // Clear custom event handlers
+    customEventHandlers.clear();
 
     // Reset connection state
     stateAccessor.setIsConnected(false);
