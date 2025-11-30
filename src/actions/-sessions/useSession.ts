@@ -1,8 +1,8 @@
 import { useSession } from "@tanstack/react-start/server";
 
-type SessionData = {
+export type SessionData = {
   userId: string;
-  email: string;
+  email?: string;
   moderator: boolean;
 };
 

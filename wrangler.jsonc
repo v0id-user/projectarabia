@@ -32,6 +32,32 @@
   ],
   "env": {
     "production": {
+      "migrations": [
+        {
+          "new_sqlite_classes": [
+            "Chat",
+            "UserInbox",
+            "Notification"
+          ],
+          "tag": "v1"
+        }
+      ],
+      "durable_objects": {
+        "bindings": [
+          {
+            "class_name": "Chat", // Must match export name
+            "name": "Chat" // Binding name in env
+          },
+          {
+            "class_name": "UserInbox", // Must match export name
+            "name": "UserInbox" // Binding name in env
+          },
+          {
+            "class_name": "Notification", // Must match export name
+            "name": "Notification" // Binding name in env
+          }
+        ]
+      },
       "vars": {
         "DOMAIN": "b11z.news",
         "VITE_DOMAIN": "https://b11z.news",
@@ -69,6 +95,32 @@
       }
     },
     "development": {
+      "migrations": [
+        {
+          "new_sqlite_classes": [
+            "Chat",
+            "UserInbox",
+            "Notification"
+          ],
+          "tag": "v1"
+        }
+      ],
+      "durable_objects": {
+        "bindings": [
+          {
+            "class_name": "Chat", // Must match export name
+            "name": "Chat" // Binding name in env
+          },
+          {
+            "class_name": "UserInbox", // Must match export name
+            "name": "UserInbox" // Binding name in env
+          },
+          {
+            "class_name": "Notification", // Must match export name
+            "name": "Notification" // Binding name in env
+          }
+        ]
+      },
       "vars": {
         "DOMAIN": "localhost:3000",
         "VITE_DOMAIN": "http://localhost:3000",

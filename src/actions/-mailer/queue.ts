@@ -1,7 +1,11 @@
 import { env } from "cloudflare:workers";
 import type { EmailPayloadMap, BatchEmailInput } from "@/lib/email";
 import type { QueueNotificationMessage } from "./helpers";
-import { selectRandomHighlights, generatePostLink } from "./helpers";
+import {
+  selectRandomHighlights,
+  generatePostLink,
+} from "./helpers";
+import { extractNotificationData } from "@/lib/notifications";
 import { logger } from "@/lib/logger";
 
 const COOLDOWN_TTL_SECONDS = 30 * 60; // 30 minutes
@@ -13,7 +17,7 @@ const COOLDOWN_TTL_SECONDS = 30 * 60; // 30 minutes
 export async function prepareNotificationEmail(
   recipientEmail: string,
   recipientId: string,
-  notificationType: "post_comment" | "comment_reply",
+  _notificationType: "post_comment" | "comment_reply", // Kept for backward compatibility
   targetId: string, // postId or commentId
   messages: QueueNotificationMessage[],
 ): Promise<{
@@ -36,31 +40,27 @@ export async function prepareNotificationEmail(
     }
 
     // Extract data from messages
-    const uniqueCommenters = [
-      ...new Set(messages.map((m) => m.commenterUsername)),
-    ];
+    const notificationData = extractNotificationData(messages);
     const commentTexts = messages.map((m) => m.commentText);
-    const postTitle = messages[0].postTitle;
-    const postId = messages[0].postId;
 
     // Prepare email data
     const emailData: EmailPayloadMap["notification"] = {
       to: recipientEmail,
-      notificationType,
-      postTitle,
-      postLink: generatePostLink(postId),
-      commenters: uniqueCommenters,
-      commentCount: messages.length,
+      notificationType: notificationData.notificationType,
+      postTitle: notificationData.postTitle,
+      postLink: generatePostLink(notificationData.postId),
+      commenters: notificationData.uniqueCommenters,
+      commentCount: notificationData.commentCount,
       highlights: selectRandomHighlights(commentTexts, 3),
     };
 
     logger.info("prepareNotificationEmail", {
       tag: "prepareNotificationEmail",
       action: "prepared",
-      recipientId,
-      targetId,
-      notificationType,
-      commentCount: messages.length,
+      recipientId: notificationData.recipientId,
+      targetId: notificationData.targetId,
+      notificationType: notificationData.notificationType,
+      commentCount: notificationData.commentCount,
     });
 
     return {

@@ -2,6 +2,7 @@ import { useAuth } from "@/contexts/auth";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { logoutFn } from "@/actions/auth-submit";
+import { BellInbox } from "@/components/bell-inbox";
 
 export default function BoardHeader() {
   const { user, isLoading } = useAuth();
@@ -220,6 +221,7 @@ export default function BoardHeader() {
                 !isLoading &&
                 (user ? (
                   <div className="flex items-center gap-2 text-xs">
+                    <BellInbox />
                     <Link
                       to="/user/$username"
                       params={{ username: user.username }}
@@ -258,6 +260,7 @@ export default function BoardHeader() {
               !isLoading &&
               (user ? (
                 <div className="flex items-center gap-2">
+                  <BellInbox />
                   <Link
                     to="/user/$username"
                     params={{ username: user.username }}
