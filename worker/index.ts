@@ -15,6 +15,10 @@ import { Chat } from "@/actors/chat.actor";
 import { UserInbox } from "@/dos/inbox";
 import { Notification } from "@/actors/notification.actor";
 import { logger } from "@/lib/logger";
+import {
+  extractNotificationData,
+  buildRealtimeNotificationPayload,
+} from "@/lib/notifications";
 
 export default {
   async fetch(request: Request, env: Env, ctx: ExecutionContext) {
@@ -60,27 +64,26 @@ export default {
 
     for (const [key, batchedMessages] of batched.entries()) {
       try {
-        const firstMessage = batchedMessages[0];
-        const recipientId = firstMessage.recipientId;
-        const targetId = firstMessage.targetId;
-        const notificationType = firstMessage.notificationType;
+        const notificationData = extractNotificationData(batchedMessages);
 
         // Get recipient email based on notification type
         let recipientEmail: string | null = null;
 
-        if (notificationType === "post_comment") {
+        if (notificationData.notificationType === "post_comment") {
           // Fetch post owner email
-          const postOwner = await getPostOwnerEmail(targetId);
+          const postOwner = await getPostOwnerEmail(notificationData.targetId);
           recipientEmail = postOwner?.email || null;
-        } else if (notificationType === "comment_reply") {
+        } else if (notificationData.notificationType === "comment_reply") {
           // Fetch comment owner email
-          const commentOwner = await getCommentOwnerEmail(targetId);
+          const commentOwner = await getCommentOwnerEmail(
+            notificationData.targetId,
+          );
           recipientEmail = commentOwner?.email || null;
         }
 
         if (!recipientEmail) {
           console.log(
-            `Skipping notification - recipient has no email: ${recipientId} skipping notification type: ${notificationType}`,
+            `Skipping notification - recipient has no email: ${notificationData.recipientId} skipping notification type: ${notificationData.notificationType}`,
           );
           continue;
         }
@@ -88,9 +91,9 @@ export default {
         // Prepare email and check cooldown
         const prepared = await prepareNotificationEmail(
           recipientEmail,
-          recipientId,
-          notificationType,
-          targetId,
+          notificationData.recipientId,
+          notificationData.notificationType,
+          notificationData.targetId,
           batchedMessages,
         );
 
@@ -123,6 +126,56 @@ export default {
       } catch (error) {
         console.error("Error sending batch emails:", error);
       }
+    }
+
+    // Emit real-time notifications to all recipients (regardless of email cooldown)
+    try {
+      const notificationStub = Notification.get("projectarabia-notification");
+      const notificationPromises: Promise<number>[] = [];
+
+      for (const [, batchedMessages] of batched.entries()) {
+        const notificationData = extractNotificationData(batchedMessages);
+        const payload = buildRealtimeNotificationPayload(notificationData);
+
+        // Emit real-time notification using socket.io-like API
+        const emitPromise = (async () => {
+          try {
+            const sentCount = await (
+              await notificationStub.toUser(notificationData.recipientId)
+            ).emit("inbox_changed", payload);
+            logger.info("worker:queue:notification-emitted", {
+              recipientId: notificationData.recipientId,
+              sentCount,
+              notificationType: notificationData.notificationType,
+            });
+            return sentCount;
+          } catch (error) {
+            logger.error("worker:queue:notification-emit-error", {
+              recipientId: notificationData.recipientId,
+              error:
+                error instanceof Error ? error.message : String(error),
+            });
+            return 0;
+          }
+        })();
+
+        notificationPromises.push(emitPromise);
+      }
+
+      // Wait for all notifications to be emitted (but don't fail if some fail)
+      const results = await Promise.allSettled(notificationPromises);
+      const successCount = results.filter(
+        (r) => r.status === "fulfilled" && r.value > 0,
+      ).length;
+      logger.info("worker:queue:notifications-completed", {
+        total: notificationPromises.length,
+        successful: successCount,
+      });
+    } catch (error) {
+      // Log error but don't fail queue processing
+      logger.error("worker:queue:notification-batch-error", {
+        error: error instanceof Error ? error.message : String(error),
+      });
     }
 
     console.log("Queue processing completed");

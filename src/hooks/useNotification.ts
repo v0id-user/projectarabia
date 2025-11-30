@@ -20,13 +20,13 @@ const notificationConnectionManager = createConnectionManager(
       maxAttempts: 3,
     },
     eventHandlers: {
-      "notification.update": (data: string) => {
+      inbox_changed: (data: string) => {
         const addNotification = useNotificationStore.getState().addNotification;
         try {
           const parsed = JSON.parse(data);
           const notification: NotificationData = {
             id: crypto.randomUUID(),
-            eventType: parsed.type || "unknown",
+            eventType: parsed.type || "inbox_changed",
             eventData: parsed,
           };
           addNotification(notification);
