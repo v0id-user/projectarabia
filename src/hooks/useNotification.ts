@@ -20,18 +20,34 @@ const notificationConnectionManager = createConnectionManager(
       maxAttempts: 3,
     },
     eventHandlers: {
-      inbox_changed: (data: string) => {
+      inbox_changed: (data: unknown) => {
         const addNotification = useNotificationStore.getState().addNotification;
         try {
-          const parsed = JSON.parse(data);
+          // VeraniClient already parses JSON, so data is an object
+          // The payload is in data.data if it's wrapped, otherwise use data directly
+          const payload =
+            typeof data === "object" &&
+            data !== null &&
+            "data" in data &&
+            typeof (data as { data: unknown }).data === "object"
+              ? (data as { data: unknown }).data
+              : data;
+
+          // Ensure payload is an object
+          if (typeof payload !== "object" || payload === null) {
+            console.error("Invalid notification payload:", payload);
+            return;
+          }
+
           const notification: NotificationData = {
             id: crypto.randomUUID(),
-            eventType: parsed.type || "inbox_changed",
-            eventData: parsed,
+            eventType:
+              (payload as { type?: string }).type || "inbox_changed",
+            eventData: payload,
           };
           addNotification(notification);
         } catch (error) {
-          console.error("Failed to parse notification:", error);
+          console.error("Failed to process notification:", error);
         }
       },
     },
