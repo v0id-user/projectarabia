@@ -145,7 +145,7 @@ export function createConnectionManager(
           enabled: config.reconnection?.enabled ?? true,
           maxAttempts: config.reconnection?.maxAttempts ?? 3,
         },
-        pingInterval: 10000,
+        pingInterval: 30000, // 30 seconds
         pongTimeout: 5000,
       });
 
