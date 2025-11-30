@@ -140,9 +140,11 @@ export default {
         // Emit real-time notification using socket.io-like API
         const emitPromise = (async () => {
           try {
-            const sentCount = await (
-              await notificationStub.toUser(notificationData.recipientId)
-            ).emit("inbox_changed", payload);
+            const sentCount = await notificationStub.emitToUser(
+              notificationData.recipientId,
+              "inbox_changed",
+              payload,
+            );
             logger.info("worker:queue:notification-emitted", {
               recipientId: notificationData.recipientId,
               sentCount,
