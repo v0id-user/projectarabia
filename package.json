@@ -38,7 +38,7 @@
     "drizzle-orm": "^0.44.7",
     "lucide-react": "^0.552.0",
     "nanoid": "^5.1.6",
-    "react": "^19.2.0",
+    "react": "^19.2.1",
     "react-dom": "^19.2.0",
     "resend": "^6.4.0",
     "verani": "0.5.2",
